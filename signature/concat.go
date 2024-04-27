@@ -18,27 +18,27 @@ func Sign(mp map[string]any, secret string, sign func(string) string) string {
 	return sign(ConcatMap(mp, false) + secret)
 }
 
-// ConcatMapWithSort 拼接对象, 按key排序, 忽略空值.
+// ConcatSortMap 拼接对象, 按key排序, 忽略空值.
 // 格式: k1=v1&k2=v2 (其中sep1='=', sep2='&')
-func ConcatMapWithSort(mp map[string]string, sep1, sep2 string) string {
+func ConcatSortMap(mp map[string]string, sep1, sep2 string) string {
 	if len(mp) == 0 {
 		return ""
 	}
-	ks := make([]string, 0, len(mp))
+	keys := make([]string, 0, len(mp))
 	n := 0
 	for k, v := range mp {
 		if v != "" {
-			ks = append(ks, k)
+			keys = append(keys, k)
 			n += len(k) + len(v)
 		}
 	}
-	n += len(ks)*2 - 1 // 加上sep1和sep2的总个数
+	n += len(keys)*2 - 1 // 加上sep1和sep2的总个数
 
-	sort.Strings(ks)
+	sort.Strings(keys)
 
 	bs := strings.Builder{}
 	bs.Grow(n)
-	for _, k := range ks {
+	for _, k := range keys {
 		if bs.Len() > 0 {
 			bs.WriteString(sep2)
 		}
