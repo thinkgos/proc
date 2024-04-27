@@ -1,3 +1,3 @@
 # sets
 
-support`interface{}`/`any` which implement Comparator interface and builtin type.
+support `interface{}`/`any` which implement Comparator interface and builtin type.
