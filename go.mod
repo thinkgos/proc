@@ -1,4 +1,4 @@
-module github.com/thinkgos/proc
+module github.com/things-go/proc
 
 go 1.22
 
