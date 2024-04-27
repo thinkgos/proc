@@ -20,7 +20,12 @@ jobs:
       security-events: write
 
     steps:
-      - name: Checkout repository
+      # optionally use a specific version of Go rather than the default one
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22.x"
+      - name: Check out code into the Go module directory
         uses: actions/checkout@v4
         with:
           # We must fetch at least the immediate parents so that if this is
