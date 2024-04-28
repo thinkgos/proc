@@ -10,8 +10,6 @@ import (
 	"strings"
 )
 
-
-
 // ConcatSortMap 拼接对象, 按key排序, 忽略空值.
 // 格式: k1=v1&k2=v2 (其中sep1='=', sep2='&')
 func ConcatSortMap(mp map[string]string, sep1, sep2 string) string {

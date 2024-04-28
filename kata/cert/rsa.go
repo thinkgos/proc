@@ -30,6 +30,7 @@ func ParseRSAPrivateKeyFromPEM(key []byte, password ...string) (*rsa.PrivateKey,
 
 	blockBytes = block.Bytes
 	if len(password) > 0 {
+		//nolint: staticcheck
 		blockBytes, err = x509.DecryptPEMBlock(block, []byte(password[0]))
 		if err != nil {
 			return nil, err
@@ -64,6 +65,7 @@ func ParseRSAPKCS1PrivateKeyFromPEM(key []byte, password ...string) (*rsa.Privat
 
 	blockBytes = block.Bytes
 	if len(password) > 0 {
+		//nolint: staticcheck
 		blockBytes, err = x509.DecryptPEMBlock(block, []byte(password[0]))
 		if err != nil {
 			return nil, err
@@ -86,6 +88,7 @@ func ParseRSAPKCS8PrivateKeyFromPEM(key []byte, password ...string) (*rsa.Privat
 
 	blockBytes = block.Bytes
 	if len(password) > 0 {
+		//nolint: staticcheck
 		blockBytes, err = x509.DecryptPEMBlock(block, []byte(password[0]))
 		if err != nil {
 			return nil, err
