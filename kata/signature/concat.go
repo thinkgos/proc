@@ -10,13 +10,7 @@ import (
 	"strings"
 )
 
-// H map[string]any
-type H map[string]any
 
-// Sign 对象签名
-func Sign(mp map[string]any, secret string, sign func(string) string) string {
-	return sign(ConcatMap(mp, false) + secret)
-}
 
 // ConcatSortMap 拼接对象, 按key排序, 忽略空值.
 // 格式: k1=v1&k2=v2 (其中sep1='=', sep2='&')

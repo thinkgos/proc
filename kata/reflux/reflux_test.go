@@ -11,6 +11,11 @@ import (
 	"github.com/things-go/proc/testdata"
 )
 
+const (
+	testPrivFilePath = "../../testdata/test.key"
+	testPubFilePath  = "../../testdata/test.pub"
+)
+
 func Test_Reflux_Encrypt_Decrypt(t *testing.T) {
 	r, err := New(testdata.PriveKey, testdata.PubKey)
 	require.NoError(t, err)
@@ -53,11 +58,6 @@ func Test_Reflux_Sign_Verify(t *testing.T) {
 	err = r.Verify(tk, reg)
 	require.NoError(t, err)
 }
-
-const (
-	testPrivFilePath = "../testdata/test.key"
-	testPubFilePath  = "../testdata/test.pub"
-)
 
 func Test_Reflux_Encrypt_Decrypt_Use_File_Codec(t *testing.T) {
 	r, err := New(testPrivFilePath, testPubFilePath, WithCodecString(base64.RawURLEncoding))

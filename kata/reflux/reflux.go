@@ -6,10 +6,10 @@ import (
 	"crypto/rsa"
 	"crypto/sha256"
 	"encoding/base64"
-	"os"
 
-	"github.com/golang-jwt/jwt/v5"
 	"google.golang.org/protobuf/proto"
+
+	"github.com/things-go/proc/kata/cert"
 )
 
 type CodecString interface {
@@ -36,24 +36,16 @@ type Reflux struct {
 // New returns a new Reflux.
 // privKey, pubKey: string or filepath string.
 func New(privKey, pubKey string, opts ...Option) (*Reflux, error) {
-	priv, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(privKey))
+	priv, err := cert.ParseRSAPrivateKeyFromPEM([]byte(privKey))
 	if err != nil {
-		privData, err := os.ReadFile(privKey)
-		if err != nil {
-			return nil, err
-		}
-		priv, err = jwt.ParseRSAPrivateKeyFromPEM(privData)
+		priv, err = cert.LoadRSAPrivateKeyFromFile(privKey)
 		if err != nil {
 			return nil, err
 		}
 	}
-	pub, err := jwt.ParseRSAPublicKeyFromPEM([]byte(pubKey))
+	pub, err := cert.ParseRSAPublicKeyFromPEM([]byte(pubKey))
 	if err != nil {
-		pubData, err := os.ReadFile(pubKey)
-		if err != nil {
-			return nil, err
-		}
-		pub, err = jwt.ParseRSAPublicKeyFromPEM(pubData)
+		pub, err = cert.LoadRSAPublicKeyFromPemFile(pubKey)
 		if err != nil {
 			return nil, err
 		}
