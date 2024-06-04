@@ -152,3 +152,54 @@ func Test_PascalCase(t *testing.T) {
 		})
 	}
 }
+
+func Test_LowTitle(t *testing.T) {
+	tests := []struct {
+		name string
+		args string
+		want string
+	}{
+		{
+			name: "empty",
+			args: "",
+			want: "",
+		},
+		{
+			name: "start with capital letter",
+			args: "PabBBicNotify",
+			want: "pabBBicNotify",
+		},
+		{
+			name: "start with lower letter",
+			args: "pabBBicNotify",
+			want: "pabBBicNotify",
+		},
+		{
+			name: "start with number",
+			args: "1PabBBicNotify",
+			want: "1PabBBicNotify",
+		},
+		{
+			name: "start with _",
+			args: "_abc",
+			want: "_abc",
+		},
+		{
+			name: "start with space",
+			args: "\u85FFabc",
+			want: "\u85FFabc",
+		},
+		{
+			name: "start with 中文",
+			args: "中abc",
+			want: "中abc",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := LowTitle(tt.args); got != tt.want {
+				t.Errorf("LowTitle() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

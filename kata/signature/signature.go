@@ -8,7 +8,8 @@ import (
 	"crypto/rsa"
 	"encoding/base64"
 	"errors"
-	"unsafe"
+
+	"github.com/things-go/proc/internal/bytesconv"
 )
 
 // error defined
@@ -39,7 +40,7 @@ func RsaDecrypt(pri *rsa.PrivateKey, ciphertext string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return *(*string)(unsafe.Pointer(&bb)), nil
+	return bytesconv.BytesToString(bb), nil
 }
 
 // AesCbcEncrypt aes cbc, iv + ciphertext  with base64 encoded.

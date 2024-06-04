@@ -19,7 +19,8 @@ import (
 	"math/big"
 	"math/rand/v2"
 	"strings"
-	"unsafe"
+
+	"github.com/things-go/proc/internal/bytesconv"
 )
 
 const (
@@ -174,7 +175,7 @@ func (sf *Complexity) Generate(n int) string {
 			}
 			buffer[j] = sf.chars[idx]
 		}
-		v := *(*string)(unsafe.Pointer(&buffer))
+		v := bytesconv.BytesToString(buffer)
 		if sf.IsComplexEnough(v) && v[:1] != " " && v[n-1:] != " " {
 			return v
 		}

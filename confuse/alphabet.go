@@ -18,7 +18,8 @@ import (
 	cryptoRand "crypto/rand"
 	"math/bits"
 	"math/rand/v2"
-	"unsafe"
+
+	"github.com/things-go/proc/internal/bytesconv"
 )
 
 // Previous defined bytes, do not change this.
@@ -71,7 +72,7 @@ func Bytes(length int, alphabets ...byte) []byte {
 
 func randString(length int, alphabets []byte) string {
 	b := randBytes(length, alphabets)
-	return *(*string)(unsafe.Pointer(&b))
+	return bytesconv.BytesToString(b)
 }
 
 func randBytes(length int, alphabets []byte) []byte {
