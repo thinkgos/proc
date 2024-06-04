@@ -8,6 +8,9 @@ import (
 type CommentLines []string
 
 func NewCommentLines(s string) CommentLines {
+	if strings.TrimSpace(s) == "" {
+		return CommentLines{}
+	}
 	if !strings.HasPrefix(s, "//") {
 		s = "// " + strings.TrimSpace(s)
 	}
@@ -28,7 +31,7 @@ func (c CommentLines) Derives() ([]*Derive, CommentLines) {
 	return ret, remain
 }
 
-// Annotations find `identity` match the annotation and remaining comment lines.
+// FindDerives find `identity` match the annotation and remaining comment lines.
 func (c CommentLines) FindDerives(identity string) ([]*Derive, CommentLines) {
 	remain := make(CommentLines, 0, len(c))
 	ret := make([]*Derive, 0, len(c))
@@ -68,7 +71,7 @@ func (c CommentLines) String() string {
 }
 
 // LineString one line string.
-// String formats the comments by inserting // to the start,
+// String formats the comments by remove the start //,
 // the next multi line to trim the start //, join with `, ` .
 // An empty comment is formatted as an empty string.
 func (c CommentLines) LineString() string {
