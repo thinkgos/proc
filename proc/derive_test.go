@@ -62,5 +62,4 @@ func Test_Derives(t *testing.T) {
 		require.Equal(t, "", line.String())
 		require.Equal(t, "", line.LineString())
 	})
-
 }
