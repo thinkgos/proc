@@ -4,8 +4,6 @@ import (
 	"cmp"
 )
 
-
-
 type NodeTree[I cmp.Ordered, T any] interface {
 	GetId() I
 	GetPid() I
