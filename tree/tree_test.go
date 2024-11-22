@@ -7,13 +7,19 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+var _ Node[int, *DeptTree] = (*Dept)(nil)
+var _ NodeTree[int, *DeptTree] = (*DeptTree)(nil)
+
 type Dept struct {
 	Id   int
 	Pid  int
 	Name string
 }
 
+// MapId implements Node.
 func (d *Dept) MapId() int { return d.Id }
+
+// MapTree implements Node.
 func (d *Dept) MapTree() *DeptTree {
 	return &DeptTree{
 		Dept:     d,
@@ -26,9 +32,13 @@ type DeptTree struct {
 	Children []*DeptTree
 }
 
-func (d *DeptTree) GetId() int  { return d.Id }
+// GetId implements NodeTree.
+func (d *DeptTree) GetId() int { return d.Id }
+
+// GetPid implements NodeTree.
 func (d *DeptTree) GetPid() int { return d.Pid }
 
+// AppendChildren implements NodeTree.
 func (d *DeptTree) AppendChildren(v *DeptTree) {
 	d.Children = append(d.Children, v)
 }
@@ -48,8 +58,19 @@ var arr = []*Dept{
 }
 
 func TestTree(t *testing.T) {
-	vv := IntoTree(arr, 0)
-	v, err := json.MarshalIndent(vv, " ", "  ")
+	gotTree1 := IntoTree(arr, 0)
+	tree1, err := json.MarshalIndent(gotTree1, " ", "  ")
 	require.NoError(t, err)
-	t.Log(string(v))
+
+	arrTree := make([]*DeptTree, 0, len(arr))
+	for _, v := range arr {
+		vv := *v
+		arrTree = append(arrTree, vv.MapTree())
+	}
+
+	gotTree2 := IntoTree2(arrTree, 0)
+	tree2, err := json.MarshalIndent(gotTree2, " ", "  ")
+	require.NoError(t, err)
+
+	require.Equal(t, tree2, tree1)
 }
