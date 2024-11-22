@@ -50,3 +50,12 @@ func intoTree[T cmp.Ordered, E NodeTree[T, E]](nodeMaps map[T]E, rows []E, rootP
 	}
 	return root
 }
+
+// Map implement Node map to NodeTree
+func Map[I cmp.Ordered, E Node[I, U], U NodeTree[I, U]](rows []E) []U {
+	nodes := make([]U, 0, len(rows))
+	for _, v := range rows {
+		nodes = append(nodes, v.MapTree())
+	}
+	return nodes
+}

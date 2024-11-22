@@ -62,12 +62,7 @@ func TestTree(t *testing.T) {
 	tree1, err := json.MarshalIndent(gotTree1, " ", "  ")
 	require.NoError(t, err)
 
-	arrTree := make([]*DeptTree, 0, len(arr))
-	for _, v := range arr {
-		vv := *v
-		arrTree = append(arrTree, vv.MapTree())
-	}
-
+	arrTree := Map(arr)
 	gotTree2 := IntoTree2(arrTree, 0)
 	tree2, err := json.MarshalIndent(gotTree2, " ", "  ")
 	require.NoError(t, err)
