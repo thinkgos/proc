@@ -9,11 +9,13 @@ import (
 
 var _ Node[int, *DeptTree] = (*Dept)(nil)
 var _ NodeTree[int, *DeptTree] = (*DeptTree)(nil)
+var _ NodeSort[*DeptTree] = (*DeptTree)(nil)
 
 type Dept struct {
 	Id   int
 	Pid  int
 	Name string
+	Sort int
 }
 
 // MapId implements Node.
@@ -43,18 +45,27 @@ func (d *DeptTree) AppendChildren(v *DeptTree) {
 	d.Children = append(d.Children, v)
 }
 
+// SortChildren implements NodeSort.
+func (d *DeptTree) SortChildren(cmp func(a, b *DeptTree) int) {
+	SortFunc(d.Children, cmp)
+}
+
+func CmpDept(a, b *DeptTree) int {
+	return a.Sort - b.Sort
+}
+
 var arr = []*Dept{
-	{1, 0, "超然科技"},
-	{8, 3, "bb"},
-	{6, 2, "研究院"},
-	{2, 0, "低速科技"},
-	{3, 1, "科研中心"},
-	{4, 1, "运营中心"},
-	{5, 2, "吃喝院"},
-	{7, 3, "aa"},
-	{9, 4, "cc"},
-	{10, 5, "dd"},
-	{11, 6, "ee"},
+	{1, 0, "超然科技", 1},
+	{8, 3, "bb", 2},
+	{6, 2, "研究院", 4},
+	{2, 0, "低速科技", 5},
+	{3, 1, "科研中心", 4},
+	{4, 1, "运营中心", 2},
+	{5, 2, "吃喝院", 3},
+	{7, 3, "aa", 4},
+	{9, 4, "cc", 2},
+	{10, 5, "dd", 3},
+	{11, 6, "ee", 4},
 }
 
 func TestTree(t *testing.T) {
@@ -68,4 +79,9 @@ func TestTree(t *testing.T) {
 	require.NoError(t, err)
 
 	require.Equal(t, tree2, tree1)
+
+	t.Log(string(tree1))
+	SortFunc(gotTree1, CmpDept)
+	tree11, _ := json.MarshalIndent(gotTree1, " ", "  ")
+	t.Log(string(tree11))
 }
