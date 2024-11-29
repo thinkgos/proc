@@ -36,7 +36,7 @@ func IntoTree[T cmp.Ordered, E Node[T, U], U NodeTree[T, U]](x []E, rootPid T) [
 	return intoTree(nodeMaps, nodes, rootPid)
 }
 
-// IntoTree 列表转树, 切片有children, 顺序由x本身顺序决定
+// IntoTree 列表转树, 切片有children
 // 元素顺序由x本身顺序决定, 可提前排序, 然后转树(或使用 SortFunc)
 func IntoTree2[T cmp.Ordered, E NodeTree[T, E]](x []E, rootPid T) []E {
 	nodeMaps := intoMap(x)
