@@ -6,7 +6,7 @@ import (
 	"unsafe"
 )
 
-var StdEncoding = NewEncoding("abcdefghijklmnopqrstuvwxyz234567")
+var StdEncoding = NewEncoding("234567abcdefghijklmnopqrstuvwxyz")
 
 const (
 	decodeMapInitialize = "" +
