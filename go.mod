@@ -5,7 +5,7 @@ go 1.23
 require (
 	github.com/alecthomas/participle/v2 v2.1.1
 	github.com/stretchr/testify v1.10.0
-	golang.org/x/crypto v0.31.0
+	golang.org/x/crypto v0.32.0
 	google.golang.org/protobuf v1.36.2
 )
 
