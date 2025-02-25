@@ -83,7 +83,7 @@ func TestSlidingWindowReduce(t *testing.T) {
 	for _, test := range tests {
 		t.Run("", func(t *testing.T) {
 			r := test.win
-			for x := 0; x < size; x++ {
+			for x := range size {
 				for i := 0; i <= x; i++ {
 					r.Add(float64(i))
 				}

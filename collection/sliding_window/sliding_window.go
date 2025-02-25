@@ -36,7 +36,7 @@ func NewSlidingWindow(size int, interval time.Duration, opts ...SlidingWindowOpt
 		panic("collection: size must be greater than 0")
 	}
 	buckets := make([]*Bucket, size)
-	for i := 0; i < size; i++ {
+	for i := range size {
 		buckets[i] = new(Bucket)
 	}
 	w := &SlidingWindow{
@@ -77,7 +77,7 @@ func (s *SlidingWindow) Reduce(fn func(b *Bucket)) {
 	}
 	if diff > 0 {
 		offset := (s.offset + span + 1) % s.size
-		for i := 0; i < diff; i++ {
+		for i := range diff {
 			fn(s.buckets[(offset+i)%s.size])
 		}
 	}
@@ -95,7 +95,7 @@ func (s *SlidingWindow) updateOffset() {
 	span := s.span()
 	offset := s.offset
 	// reset expired buckets
-	for i := 0; i < span; i++ {
+	for i := range span {
 		s.buckets[(offset+i+1)%s.size].reset()
 	}
 

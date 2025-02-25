@@ -71,7 +71,7 @@ func TestComplexity_Generate(t *testing.T) {
 
 	test := func(t *testing.T, opt ...Option) {
 		c := NewComplexity(opt...)
-		for i := 0; i < maxCount; i++ {
+		for range maxCount {
 			pwd := c.Generate(pwdLen)
 			assert.Equal(t, pwdLen, len(pwd))
 			assert.True(t, c.IsComplexEnough(pwd), "Failed complexities for generated: %s", pwd)

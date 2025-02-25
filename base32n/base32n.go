@@ -18,10 +18,10 @@ type Encoding struct {
 func NewEncoding(encoder string) *Encoding {
 	e := new(Encoding)
 	copy(e.encode[:], encoder)
-	for i := 0; i < len(e.decodeMap); i++ {
+	for i := range len(e.decodeMap) {
 		e.decodeMap[i] = invalidIndex
 	}
-	for i := 0; i < len(encoder); i++ {
+	for i := range len(encoder) {
 		char := encoder[i]
 		e.decodeMap[char] = uint8(i)
 	}
@@ -44,7 +44,7 @@ func (enc *Encoding) Encode(num int64) string {
 func (enc *Encoding) Decode(s string) (int64, error) {
 	var num int64 = 0
 
-	for i := 0; i < len(s); i++ {
+	for i := range len(s) {
 		char := s[i]
 		val := enc.decodeMap[char]
 		if val == invalidIndex {
