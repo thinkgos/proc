@@ -52,7 +52,7 @@ func ConcatMap(mp map[string]any, hasBrace bool) string {
 
 	keys := make([]string, 0, len(mp))
 	for k, v := range mp {
-		if !(v == nil || v == "") { // ignore nil and empty string
+		if v != nil && v != "" { // ignore nil and empty string
 			keys = append(keys, k)
 		}
 	}
@@ -85,7 +85,7 @@ func ConcatMap(mp map[string]any, hasBrace bool) string {
 // ConcatArray 拼接数组, 不排序, 按","分隔, 忽略空值, 前后带有方括号
 func ConcatArray(v any) string {
 	value := reflect.ValueOf(v)
-	if !(value.Kind() == reflect.Array || value.Kind() == reflect.Slice) {
+	if value.Kind() != reflect.Array && value.Kind() != reflect.Slice {
 		return toString(v)
 	}
 	if value.Len() == 0 {

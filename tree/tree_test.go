@@ -12,10 +12,10 @@ var _ NodeTree[int, *DeptTree] = (*DeptTree)(nil)
 var _ NodeSort[*DeptTree] = (*DeptTree)(nil)
 
 type Dept struct {
-	Id   int
-	Pid  int
-	Name string
-	Sort int
+	Id   int    `json:"id"`
+	Pid  int    `json:"pid"`
+	Name string `json:"name"`
+	Sort int    `json:"sort"`
 }
 
 // MapId implements Node.
@@ -31,7 +31,7 @@ func (d *Dept) MapTree() *DeptTree {
 
 type DeptTree struct {
 	*Dept
-	Children []*DeptTree
+	Children []*DeptTree `json:"children"`
 }
 
 // GetId implements NodeTree.
@@ -55,17 +55,17 @@ func CmpDept(a, b *DeptTree) int {
 }
 
 var arr = []*Dept{
-	{1, 0, "超然科技", 1},
-	{8, 3, "bb", 2},
-	{6, 2, "研究院", 4},
-	{2, 0, "低速科技", 5},
-	{3, 1, "科研中心", 4},
-	{4, 1, "运营中心", 2},
-	{5, 2, "吃喝院", 3},
-	{7, 3, "aa", 4},
-	{9, 4, "cc", 2},
-	{10, 5, "dd", 3},
-	{11, 6, "ee", 4},
+	{Id: 1, Pid: 0, Name: "超然科技", Sort: 1},
+	{Id: 8, Pid: 3, Name: "bb", Sort: 2},
+	{Id: 6, Pid: 2, Name: "研究院", Sort: 4},
+	{Id: 2, Pid: 0, Name: "低速科技", Sort: 5},
+	{Id: 3, Pid: 1, Name: "科研中心", Sort: 4},
+	{Id: 4, Pid: 1, Name: "运营中心", Sort: 2},
+	{Id: 5, Pid: 2, Name: "吃喝院", Sort: 3},
+	{Id: 7, Pid: 3, Name: "aa", Sort: 4},
+	{Id: 9, Pid: 4, Name: "cc", Sort: 2},
+	{Id: 10, Pid: 5, Name: "dd", Sort: 3},
+	{Id: 11, Pid: 6, Name: "ee", Sort: 4},
 }
 
 func TestTree(t *testing.T) {
@@ -82,6 +82,7 @@ func TestTree(t *testing.T) {
 
 	t.Log(string(tree1))
 	SortFunc(gotTree1, CmpDept)
-	tree11, _ := json.MarshalIndent(gotTree1, " ", "  ")
+	tree11, err := json.MarshalIndent(gotTree1, " ", "  ")
+	require.NoError(t, err)
 	t.Log(string(tree11))
 }
