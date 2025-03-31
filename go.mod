@@ -6,7 +6,6 @@ require (
 	github.com/alecthomas/participle/v2 v2.1.4
 	github.com/stretchr/testify v1.10.0
 	golang.org/x/crypto v0.36.0
-	google.golang.org/protobuf v1.36.6
 )
 
 require (
