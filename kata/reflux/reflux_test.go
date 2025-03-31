@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/things-go/proc/testdata"
+	"github.com/thinkgos/proc/testdata"
 )
 
 const (

@@ -1,7 +1,7 @@
 package password
 
 import (
-	"github.com/things-go/proc/internal/bytesconv"
+	"github.com/thinkgos/proc/internal/bytesconv"
 	"golang.org/x/crypto/bcrypt"
 )
 

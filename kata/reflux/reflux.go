@@ -9,7 +9,7 @@ import (
 
 	"google.golang.org/protobuf/proto"
 
-	"github.com/things-go/proc/kata/cert"
+	"github.com/thinkgos/proc/kata/cert"
 )
 
 type CodecString interface {

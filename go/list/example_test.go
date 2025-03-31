@@ -7,7 +7,7 @@ package list_test
 import (
 	"fmt"
 
-	"github.com/things-go/proc/go/list"
+	"github.com/thinkgos/proc/go/list"
 )
 
 func Example() {

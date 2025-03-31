@@ -20,7 +20,7 @@ import (
 	"math/rand/v2"
 	"strings"
 
-	"github.com/things-go/proc/internal/bytesconv"
+	"github.com/thinkgos/proc/internal/bytesconv"
 )
 
 const (

@@ -9,7 +9,7 @@ import (
 	"encoding/hex"
 	"io"
 
-	"github.com/things-go/proc/internal/bytesconv"
+	"github.com/thinkgos/proc/internal/bytesconv"
 )
 
 var _ CryptFacade = (*Simple)(nil)

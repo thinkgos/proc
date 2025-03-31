@@ -8,7 +8,7 @@ package heap_test
 import (
 	"fmt"
 
-	"github.com/things-go/proc/go/heap"
+	"github.com/thinkgos/proc/go/heap"
 )
 
 var _ heap.Interface[int] = (*IntHeap)(nil)

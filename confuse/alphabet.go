@@ -19,7 +19,7 @@ import (
 	"math/bits"
 	"math/rand/v2"
 
-	"github.com/things-go/proc/internal/bytesconv"
+	"github.com/thinkgos/proc/internal/bytesconv"
 )
 
 // Previous defined bytes, do not change this.
