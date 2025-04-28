@@ -5,42 +5,63 @@ import (
 	"slices"
 )
 
+// Node 节点为不包含的children字段的结构体, 需要转换成包含children的结构体U.
+// 其中:
+// - I: id/pid类型
+// - U: 带children的结构体, 受 NodeTree[I, U] 约束.
 type Node[I cmp.Ordered, U NodeTree[I, U]] interface {
 	MapId() I
 	MapTree() U
 }
 
+// NodeTree 节点为包含children字段的结构体.
+// 其中:
+// - I: id/pid的类型
+// - T: 实际使用应为NodeTree本身
 type NodeTree[I cmp.Ordered, T any] interface {
 	GetId() I
 	GetPid() I
 	AppendChildren(T)
 }
 
+// NodeSort 节点排序
 type NodeSort[T any] interface {
 	SortChildren(cmp func(a, b T) int)
 }
 
-// Map implement Node map to NodeTree
-func Map[I cmp.Ordered, E Node[I, U], U NodeTree[I, U]](rows []E) []U {
-	nodes := make([]U, 0, len(rows))
-	for _, v := range rows {
-		nodes = append(nodes, v.MapTree())
+// Map 将Node转换为NodeTree
+func Map[I cmp.Ordered, E Node[I, U], U NodeTree[I, U]](x []E) []U {
+	s := make([]U, 0, len(x))
+	for _, v := range x {
+		s = append(s, v.MapTree())
 	}
-	return nodes
+	return s
 }
 
-// IntoTree 列表转树, 切片无children
-// 元素顺序由x本身顺序决定, 可提前排序, 然后转树(或使用 SortFunc)
-func IntoTree[T cmp.Ordered, E Node[T, U], U NodeTree[T, U]](x []E, rootPid T) []U {
+// IntoTree 列表转树, 其中, x的元素为Node[T,U]节点(无children字段)
+// NOTE: 元素顺序由x本身顺序决定, 可以提前排序, 然后转树(或使用 SortFunc 对树进行排序)
+func IntoTree[I cmp.Ordered, E Node[I, U], U NodeTree[I, U]](x []E, rootPid I) []U {
+	return IntoTreeFunc(x, rootPid, dummy)
+}
+
+// IntoTree2 列表转树, 其中, x的元素为NodeTree[T,U]节点(有children字段)
+// NOTE: 元素顺序由x本身顺序决定, 可以提前排序, 然后转树(或使用 SortFunc 对树进行排序)
+func IntoTree2[I cmp.Ordered, U NodeTree[I, U]](x []U, rootPid I) []U {
+	return IntoTree2Func(x, rootPid, dummy)
+}
+
+// IntoTree 列表转树, 其中, x的元素为Node[T,U]节点(无children字段), f 在加入父节点前的回调, 当为根节点时, parent为空
+// NOTE: 元素顺序由x本身顺序决定, 可以提前排序, 然后转树(或使用 SortFunc 对树进行排序)
+func IntoTreeFunc[I cmp.Ordered, E Node[I, U], U NodeTree[I, U]](x []E, rootPid I, f func(parent, cur U) U) []U {
 	nodeMaps, nodes := intoMapTree(x)
-	return intoTree(nodeMaps, nodes, rootPid)
+	return intoTree(nodeMaps, nodes, rootPid, f)
 }
 
-// IntoTree 列表转树, 切片有children
-// 元素顺序由x本身顺序决定, 可提前排序, 然后转树(或使用 SortFunc)
-func IntoTree2[T cmp.Ordered, E NodeTree[T, E]](x []E, rootPid T) []E {
+// IntoTree2 列表转树, 其中, x的元素为NodeTree[T,U]节点(有children字段), f 在加入父节点前的回调, 当为根节点时, parent为空
+// NOTE: 元素顺序由x本身顺序决定, 可以提前排序, 然后转树(或使用 SortFunc 对树进行排序)
+func IntoTree2Func[I cmp.Ordered, U NodeTree[I, U]](x []U, rootPid I, f func(parent, cur U) U) []U {
 	nodeMaps := intoMap(x)
-	return intoTree(nodeMaps, x, rootPid)
+	return intoTree(nodeMaps, x, rootPid, f)
 }
 
 // SortFunc 树排序
@@ -54,23 +75,22 @@ func SortFunc[T NodeSort[T]](x []T, cmp func(a, b T) int) {
 	}
 }
 
-// T -> U 的映射
+// I -> U 映射
 // E -> U 转换
-func intoMapTree[T cmp.Ordered, E Node[T, U], U NodeTree[T, U]](x []E) (map[T]U, []U) {
+func intoMapTree[I cmp.Ordered, E Node[I, U], U NodeTree[I, U]](x []E) (map[I]U, []U) {
+	nodeMaps := make(map[I]U)
 	nodes := make([]U, 0, len(x))
-	nodeMaps := make(map[T]U)
 	for _, v := range x {
 		e := v.MapTree()
-		nodes = append(nodes, e)
 		nodeMaps[v.MapId()] = e
+		nodes = append(nodes, e)
 	}
 	return nodeMaps, nodes
 }
 
-// T -> E 映射
-func intoMap[T cmp.Ordered, E NodeTree[T, E]](x []E) map[T]E {
-	// T -> E 映射
-	nodeMaps := make(map[T]E)
+// I -> U 映射
+func intoMap[I cmp.Ordered, U NodeTree[I, U]](x []U) map[I]U {
+	nodeMaps := make(map[I]U)
 	for _, e := range x {
 		nodeMaps[e.GetId()] = e
 	}
@@ -78,15 +98,21 @@ func intoMap[T cmp.Ordered, E NodeTree[T, E]](x []E) map[T]E {
 }
 
 // 转树
-func intoTree[T cmp.Ordered, E NodeTree[T, E]](nodeMaps map[T]E, x []E, rootPid T) []E {
-	var root []E
+func intoTree[I cmp.Ordered, U NodeTree[I, U]](nodeMaps map[I]U, x []U, rootPid I, f func(parent, cur U) U) []U {
+	var dummy U
+	var root []U
+
 	for _, e := range x {
 		pid := e.GetPid()
 		if pid == rootPid {
-			root = append(root, e)
+			cur := f(dummy, e)
+			root = append(root, cur)
 		} else if parent, exists := nodeMaps[pid]; exists {
-			parent.AppendChildren(e)
+			cur := f(parent, e)
+			parent.AppendChildren(cur)
 		}
 	}
 	return root
 }
+
+func dummy[T any](_, cur T) T { return cur }
