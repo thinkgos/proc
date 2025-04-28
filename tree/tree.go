@@ -50,14 +50,14 @@ func IntoTree2[I cmp.Ordered, U NodeTree[I, U]](x []U, rootPid I) []U {
 	return IntoTree2Func(x, rootPid, dummy)
 }
 
-// IntoTree 列表转树, 其中, x的元素为Node[T,U]节点(无children字段), f 在加入父节点前的回调, 当为根节点时, parent为空
+// IntoTree 列表转树, 其中, x的元素为Node[T,U]节点(无children字段), f 在加入父节点前的回调, 当为根节点时, parent = cur
 // NOTE: 元素顺序由x本身顺序决定, 可以提前排序, 然后转树(或使用 SortFunc 对树进行排序)
 func IntoTreeFunc[I cmp.Ordered, E Node[I, U], U NodeTree[I, U]](x []E, rootPid I, f func(parent, cur U) U) []U {
 	nodeMaps, nodes := intoMapTree(x)
 	return intoTree(nodeMaps, nodes, rootPid, f)
 }
 
-// IntoTree2 列表转树, 其中, x的元素为NodeTree[T,U]节点(有children字段), f 在加入父节点前的回调, 当为根节点时, parent为空
+// IntoTree2 列表转树, 其中, x的元素为NodeTree[T,U]节点(有children字段), f 在加入父节点前的回调, 当为根节点时,  parent = cur
 // NOTE: 元素顺序由x本身顺序决定, 可以提前排序, 然后转树(或使用 SortFunc 对树进行排序)
 func IntoTree2Func[I cmp.Ordered, U NodeTree[I, U]](x []U, rootPid I, f func(parent, cur U) U) []U {
 	nodeMaps := intoMap(x)
@@ -99,17 +99,14 @@ func intoMap[I cmp.Ordered, U NodeTree[I, U]](x []U) map[I]U {
 
 // 转树
 func intoTree[I cmp.Ordered, U NodeTree[I, U]](nodeMaps map[I]U, x []U, rootPid I, f func(parent, cur U) U) []U {
-	var dummy U
 	var root []U
 
 	for _, e := range x {
 		pid := e.GetPid()
 		if pid == rootPid {
-			cur := f(dummy, e)
-			root = append(root, cur)
+			root = append(root, f(e, e))
 		} else if parent, exists := nodeMaps[pid]; exists {
-			cur := f(parent, e)
-			parent.AppendChildren(cur)
+			parent.AppendChildren(f(parent, e))
 		}
 	}
 	return root
