@@ -6,8 +6,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func Test_Ring(t *testing.T) {
-	r := NewRing[int](5)
+func Test_ConcurrentRing(t *testing.T) {
+	r := NewConcurrentRing[int](5)
 	_, ok := r.PeekLatest()
 	require.False(t, ok)
 
