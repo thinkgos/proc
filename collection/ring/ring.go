@@ -45,6 +45,16 @@ func (r *Ring[T]) Push(val T) {
 	r.full = r.head == r.tail
 }
 
+func (r *Ring[T]) PeekLatest() (T, bool) {
+	var zero T
+
+	if !r.full && r.head == r.tail {
+		return zero, false
+	}
+	idx := (r.head - 1 + len(r.buff)) % len(r.buff)
+	return r.buff[idx], true
+}
+
 // Values iterator over sequences of individual values.
 func (r *Ring[T]) Values() iter.Seq[T] {
 	return func(yield func(T) bool) {
