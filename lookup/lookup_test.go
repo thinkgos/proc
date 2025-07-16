@@ -16,7 +16,7 @@ func TestLookup(t *testing.T) {
 		headers map[string]string
 		query   url.Values
 		cookie  map[string]string
-		token   string
+		value   string
 		err     error
 	}{
 		{
@@ -25,7 +25,7 @@ func TestLookup(t *testing.T) {
 			headers: map[string]string{"Authorization": "Bearer " + extractorTestTokenValue},
 			query:   nil,
 			cookie:  nil,
-			token:   extractorTestTokenValue,
+			value:   extractorTestTokenValue,
 			err:     nil,
 		},
 		{
@@ -34,7 +34,7 @@ func TestLookup(t *testing.T) {
 			headers: map[string]string{"Authorization": "Bearer " + extractorTestTokenValue},
 			query:   nil,
 			cookie:  nil,
-			token:   extractorTestTokenValue,
+			value:   extractorTestTokenValue,
 			err:     nil,
 		},
 		{
@@ -43,7 +43,7 @@ func TestLookup(t *testing.T) {
 			headers: map[string]string{"Authorization": "Bearer " + extractorTestTokenValue},
 			query:   nil,
 			cookie:  nil,
-			token:   extractorTestTokenValue,
+			value:   extractorTestTokenValue,
 			err:     nil,
 		},
 		{
@@ -52,7 +52,7 @@ func TestLookup(t *testing.T) {
 			headers: map[string]string{"token": extractorTestTokenValue},
 			query:   nil,
 			cookie:  nil,
-			token:   extractorTestTokenValue,
+			value:   extractorTestTokenValue,
 			err:     nil,
 		},
 		{
@@ -61,7 +61,7 @@ func TestLookup(t *testing.T) {
 			headers: map[string]string{"token": extractorTestTokenValue},
 			query:   nil,
 			cookie:  nil,
-			token:   "",
+			value:   "",
 			err:     ErrMissingValue,
 		},
 
@@ -71,7 +71,7 @@ func TestLookup(t *testing.T) {
 			headers: map[string]string{"Authorization": "Bearer " + extractorTestTokenValue},
 			query:   nil,
 			cookie:  nil,
-			token:   extractorTestTokenValue,
+			value:   extractorTestTokenValue,
 			err:     nil,
 		},
 		{
@@ -80,7 +80,7 @@ func TestLookup(t *testing.T) {
 			headers: map[string]string{"Authorization": "Bearer   "},
 			query:   nil,
 			cookie:  nil,
-			token:   "",
+			value:   "",
 			err:     ErrMissingValue,
 		},
 		{
@@ -89,7 +89,7 @@ func TestLookup(t *testing.T) {
 			headers: map[string]string{},
 			query:   url.Values{"token": {extractorTestTokenValue}},
 			cookie:  nil,
-			token:   extractorTestTokenValue,
+			value:   extractorTestTokenValue,
 			err:     nil,
 		},
 		{
@@ -98,7 +98,7 @@ func TestLookup(t *testing.T) {
 			headers: map[string]string{},
 			query:   nil,
 			cookie:  nil,
-			token:   "",
+			value:   "",
 			err:     ErrMissingValue,
 		},
 		{
@@ -107,7 +107,7 @@ func TestLookup(t *testing.T) {
 			headers: map[string]string{},
 			query:   nil,
 			cookie:  map[string]string{"token": extractorTestTokenValue},
-			token:   extractorTestTokenValue,
+			value:   extractorTestTokenValue,
 			err:     nil,
 		},
 		{
@@ -116,7 +116,7 @@ func TestLookup(t *testing.T) {
 			headers: map[string]string{},
 			query:   nil,
 			cookie:  map[string]string{},
-			token:   "",
+			value:   "",
 			err:     ErrMissingValue,
 		},
 		{
@@ -125,7 +125,7 @@ func TestLookup(t *testing.T) {
 			headers: map[string]string{},
 			query:   nil,
 			cookie:  map[string]string{"token": " "},
-			token:   "",
+			value:   "",
 			err:     ErrMissingValue,
 		},
 	}
@@ -135,9 +135,9 @@ func TestLookup(t *testing.T) {
 		r := makeTestRequest("GET", "/", e.headers, e.cookie, e.query)
 
 		// Test extractor
-		token, err := NewLookup(e.lookup).ExtractToken(r)
-		if token != e.token {
-			t.Errorf("[%v] Expected token '%v'.  Got '%v'", e.name, e.token, token)
+		value, err := NewLookup(e.lookup).ExtractValue(r)
+		if value != e.value {
+			t.Errorf("[%v] Expected token '%v'.  Got '%v'", e.name, e.value, value)
 			continue
 		}
 		if err != e.err {

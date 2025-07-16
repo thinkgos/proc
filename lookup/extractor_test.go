@@ -17,7 +17,7 @@ func TestExtractor(t *testing.T) {
 		headers   map[string]string
 		query     url.Values
 		cookie    map[string]string
-		token     string
+		value     string
 		err       error
 	}{
 		{
@@ -26,7 +26,7 @@ func TestExtractor(t *testing.T) {
 			headers:   map[string]string{"token": extractorTestTokenValue},
 			query:     nil,
 			cookie:    nil,
-			token:     extractorTestTokenValue,
+			value:     extractorTestTokenValue,
 			err:       nil,
 		},
 		{
@@ -35,7 +35,7 @@ func TestExtractor(t *testing.T) {
 			headers:   map[string]string{"token": extractorTestTokenValue},
 			query:     nil,
 			cookie:    nil,
-			token:     "",
+			value:     "",
 			err:       ErrMissingValue,
 		},
 
@@ -45,7 +45,7 @@ func TestExtractor(t *testing.T) {
 			headers:   map[string]string{"Authorization": "Bearer " + extractorTestTokenValue},
 			query:     nil,
 			cookie:    nil,
-			token:     extractorTestTokenValue,
+			value:     extractorTestTokenValue,
 			err:       nil,
 		},
 		{
@@ -54,7 +54,7 @@ func TestExtractor(t *testing.T) {
 			headers:   map[string]string{"Authorization": "Bearer   "},
 			query:     nil,
 			cookie:    nil,
-			token:     "",
+			value:     "",
 			err:       ErrMissingValue,
 		},
 		{
@@ -63,7 +63,7 @@ func TestExtractor(t *testing.T) {
 			headers:   map[string]string{},
 			query:     url.Values{"token": {extractorTestTokenValue}},
 			cookie:    nil,
-			token:     extractorTestTokenValue,
+			value:     extractorTestTokenValue,
 			err:       nil,
 		},
 		{
@@ -72,7 +72,7 @@ func TestExtractor(t *testing.T) {
 			headers:   map[string]string{},
 			query:     nil,
 			cookie:    nil,
-			token:     "",
+			value:     "",
 			err:       ErrMissingValue,
 		},
 		{
@@ -81,7 +81,7 @@ func TestExtractor(t *testing.T) {
 			headers:   map[string]string{},
 			query:     nil,
 			cookie:    map[string]string{"token": extractorTestTokenValue},
-			token:     extractorTestTokenValue,
+			value:     extractorTestTokenValue,
 			err:       nil,
 		},
 		{
@@ -90,7 +90,7 @@ func TestExtractor(t *testing.T) {
 			headers:   map[string]string{},
 			query:     nil,
 			cookie:    map[string]string{},
-			token:     "",
+			value:     "",
 			err:       ErrMissingValue,
 		},
 		{
@@ -99,7 +99,7 @@ func TestExtractor(t *testing.T) {
 			headers:   map[string]string{},
 			query:     nil,
 			cookie:    map[string]string{"token": " "},
-			token:     "",
+			value:     "",
 			err:       ErrMissingValue,
 		},
 	}
@@ -109,9 +109,9 @@ func TestExtractor(t *testing.T) {
 		r := makeTestRequest("GET", "/", e.headers, e.cookie, e.query)
 
 		// Test extractor
-		token, err := e.extractor.ExtractToken(r)
-		if token != e.token {
-			t.Errorf("[%v] Expected token '%v'.  Got '%v'", e.name, e.token, token)
+		token, err := e.extractor.ExtractValue(r)
+		if token != e.value {
+			t.Errorf("[%v] Expected token '%v'.  Got '%v'", e.name, e.value, token)
 			continue
 		}
 		if err != e.err {

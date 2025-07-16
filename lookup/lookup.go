@@ -56,30 +56,39 @@ func NewLookup(lookup string) *Lookup {
 	return &Lookup{lookups}
 }
 
-// ExtractToken extract value from http request.
-func (sf *Lookup) ExtractToken(r *http.Request) (string, error) {
-	token, err := sf.extractors.ExtractToken(r)
-	if err != nil || token == "" {
+// ExtractValue extract value from http request.
+func (l *Lookup) ExtractValue(r *http.Request) (string, error) {
+	value, err := l.extractors.ExtractValue(r)
+	if err != nil || value == "" {
 		return "", ErrMissingValue
 	}
-	return token, nil
+	return value, nil
+}
+
+// ExtractValueOr extract value from http request, if miss value or error, return default value.
+func (l *Lookup) ExtractValueOr(r *http.Request, dflt string) string {
+	value, err := l.extractors.ExtractValue(r)
+	if err != nil || value == "" {
+		return dflt
+	}
+	return value
 }
 
 // FromHeader get value from header
 // key is a header key, like "Authorization"
 // prefix is a string in the header, like "Bearer", if it is empty, only will return value.
 func FromHeader(r *http.Request, key, prefix string) (string, error) {
-	return HeaderExtractor{key, prefix}.ExtractToken(r)
+	return HeaderExtractor{key, prefix}.ExtractValue(r)
 }
 
 // FromQuery get value from query
 // key is a query key
 func FromQuery(r *http.Request, key string) (string, error) {
-	return ArgumentExtractor(key).ExtractToken(r)
+	return ArgumentExtractor(key).ExtractValue(r)
 }
 
 // FromCookie get value from Cookie
 // key is a cookie key
 func FromCookie(r *http.Request, key string) (string, error) {
-	return CookieExtractor(key).ExtractToken(r)
+	return CookieExtractor(key).ExtractValue(r)
 }

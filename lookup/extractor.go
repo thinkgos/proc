@@ -8,19 +8,19 @@ import (
 )
 
 // Extractor is an interface for extracting a value from an HTTP request.
-// The ExtractToken method should return a value string or an error.
+// The ExtractValue method should return a value string or an error.
 // If no value is present, you must return ErrMissingValue.
 type Extractor interface {
-	ExtractToken(*http.Request) (string, error)
+	ExtractValue(*http.Request) (string, error)
 }
 
 // MultiExtractor tries Extractors in order until one returns a value string or an error occurs
 type MultiExtractor []Extractor
 
-func (e MultiExtractor) ExtractToken(req *http.Request) (string, error) {
+func (e MultiExtractor) ExtractValue(req *http.Request) (string, error) {
 	// loop over header names and return the first one that contains data
 	for _, extractor := range e {
-		if tok, err := extractor.ExtractToken(req); tok != "" {
+		if tok, err := extractor.ExtractValue(req); tok != "" {
 			return tok, nil
 		} else if !errors.Is(err, ErrMissingValue) {
 			return "", err
@@ -41,9 +41,9 @@ type HeaderExtractor struct {
 	Prefix string
 }
 
-func (e HeaderExtractor) ExtractToken(r *http.Request) (string, error) {
+func (e HeaderExtractor) ExtractValue(r *http.Request) (string, error) {
 	// loop over header names and return the first one that contains data
-	return stripHeadValuePrefixFromTokenString(e.Prefix)(r.Header.Get(e.Key))
+	return stripHeadValuePrefixFromValueString(e.Prefix)(r.Header.Get(e.Key))
 }
 
 // ArgumentExtractor extracts a value from request arguments.  This includes a POSTed form or
@@ -51,7 +51,7 @@ func (e HeaderExtractor) ExtractToken(r *http.Request) (string, error) {
 // This extractor calls `ParseMultipartForm` on the request
 type ArgumentExtractor string
 
-func (e ArgumentExtractor) ExtractToken(r *http.Request) (string, error) {
+func (e ArgumentExtractor) ExtractValue(r *http.Request) (string, error) {
 	// Make sure form is parsed
 	_ = r.ParseMultipartForm(10e6)
 
@@ -65,7 +65,7 @@ func (e ArgumentExtractor) ExtractToken(r *http.Request) (string, error) {
 // CookieExtractor extracts a value from cookie.
 type CookieExtractor string
 
-func (e CookieExtractor) ExtractToken(r *http.Request) (string, error) {
+func (e CookieExtractor) ExtractValue(r *http.Request) (string, error) {
 	cookie, err := r.Cookie(string(e))
 	if err != nil {
 		return "", ErrMissingValue
@@ -78,7 +78,7 @@ func (e CookieExtractor) ExtractToken(r *http.Request) (string, error) {
 }
 
 // Strips like 'Bearer ' prefix from value string with header name
-func stripHeadValuePrefixFromTokenString(prefix string) func(string) (string, error) {
+func stripHeadValuePrefixFromValueString(prefix string) func(string) (string, error) {
 	return func(tok string) (string, error) {
 		tok = strings.TrimSpace(tok)
 		if tok == "" {
