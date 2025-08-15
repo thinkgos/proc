@@ -1,4 +1,6 @@
 name: Reviewdog
+permissions:
+  contents: read
 
 on:
   pull_request:
@@ -21,6 +23,6 @@ jobs:
 
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v8
-        with: 
+        with:
           args: -E misspell,whitespace,unconvert,noctx,musttag,errchkjson,errname,exhaustive,exptostd
           version: latest
