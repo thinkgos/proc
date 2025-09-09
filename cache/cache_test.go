@@ -3,9 +3,6 @@ package cache
 import (
 	"bytes"
 	"os"
-	"runtime"
-	"strconv"
-	"sync"
 	"testing"
 	"time"
 )
@@ -15,7 +12,7 @@ type TestStruct struct {
 	Children []*TestStruct
 }
 
-func TestCache(t *testing.T) {
+func Test_Cache(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 
 	a, found := tc.Get("a")
@@ -33,9 +30,9 @@ func TestCache(t *testing.T) {
 		t.Error("Getting C found value that shouldn't exist:", c)
 	}
 
-	tc.Set("a", 1, DefaultExpiration)
-	tc.Set("b", "b", DefaultExpiration)
-	tc.Set("c", 3.5, DefaultExpiration)
+	tc.SetDefault("a", 1)
+	tc.SetDefault("b", "b")
+	tc.SetDefault("c", 3.5)
 
 	x, found := tc.Get("a")
 	if !found {
@@ -68,7 +65,7 @@ func TestCache(t *testing.T) {
 	}
 }
 
-func TestCacheTimes(t *testing.T) {
+func Test_CacheTimes(t *testing.T) {
 	var found bool
 
 	tc := New(50*time.Millisecond, 1*time.Millisecond)
@@ -106,14 +103,14 @@ func TestCacheTimes(t *testing.T) {
 	}
 }
 
-func TestNewFrom(t *testing.T) {
+func Test_NewFrom(t *testing.T) {
 	m := map[string]Item{
-		"a": Item{
-			Object:     1,
+		"a": {
+			Value:      1,
 			Expiration: 0,
 		},
-		"b": Item{
-			Object:     2,
+		"b": {
+			Value:      2,
 			Expiration: 0,
 		},
 	}
@@ -134,7 +131,7 @@ func TestNewFrom(t *testing.T) {
 	}
 }
 
-func TestStorePointerToStruct(t *testing.T) {
+func Test_StorePointerToStruct(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("foo", &TestStruct{Num: 1}, DefaultExpiration)
 	x, found := tc.Get("foo")
@@ -154,32 +151,165 @@ func TestStorePointerToStruct(t *testing.T) {
 	}
 }
 
-func TestAdd(t *testing.T) {
+func Test_SetIfAbsent(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
-	err := tc.Add("foo", "bar", DefaultExpiration)
-	if err != nil {
+	b := tc.SetNX("foo", "bar", DefaultExpiration)
+	if !b {
 		t.Error("Couldn't add foo even though it shouldn't exist")
 	}
-	err = tc.Add("foo", "baz", DefaultExpiration)
-	if err == nil {
+	b = tc.SetNX("foo", "baz", DefaultExpiration)
+	if b {
 		t.Error("Successfully added another foo when it should have returned an error")
 	}
 }
 
-func TestReplace(t *testing.T) {
+func Test_SetIfPresent(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
-	err := tc.Replace("foo", "bar", DefaultExpiration)
-	if err == nil {
+	_, b := tc.SetXX("foo", "bar", DefaultExpiration)
+	if b {
 		t.Error("Replaced foo when it shouldn't exist")
 	}
 	tc.Set("foo", "bar", DefaultExpiration)
-	err = tc.Replace("foo", "bar", DefaultExpiration)
-	if err != nil {
+	_, b = tc.SetXX("foo", "bar", DefaultExpiration)
+	if !b {
 		t.Error("Couldn't replace existing key foo")
 	}
 }
 
-func TestDelete(t *testing.T) {
+func Test_GetEx(t *testing.T) {
+	tc := New(DefaultExpiration, 0)
+
+	v1, found := tc.GetEx("a", time.Second)
+	if found || v1 != nil {
+		t.Error("Getting A found value that shouldn't exist:", v1)
+	}
+	tc.SetDefault("a", 1)
+	v2, found := tc.GetEx("a", time.Second)
+	if !found || v2 == nil {
+		t.Error("Getting A found value that should exist:", v2)
+	}
+	v3, expiration, found := tc.GetWithExpiration("a")
+	if !found {
+		t.Error("a was not found while getting v3")
+	}
+	if v3 == nil {
+		t.Error("x for c is nil")
+	} else if c2 := v3.(int); c2 != 1 {
+		t.Error("c2 (which should be 1) does not equal 1; value:", c2)
+	}
+	if expiration.IsZero() {
+		t.Error("expiration for c is a zeroed time")
+	}
+}
+
+func Test_GetDel(t *testing.T) {
+	tc := New(DefaultExpiration, 0)
+
+	v1, found := tc.GetDel("a")
+	if found || v1 != nil {
+		t.Error("Getting A found value that shouldn't exist:", v1)
+	}
+	tc.SetDefault("a", 1)
+	v2, found := tc.GetDel("a")
+	if !found || v2 == nil {
+		t.Error("Getting A found value that should exist:", v2)
+	}
+}
+
+func Test_GetWithExpiration(t *testing.T) {
+	tc := New(DefaultExpiration, 0)
+
+	a, expiration, found := tc.GetWithExpiration("a")
+	if found || a != nil || !expiration.IsZero() {
+		t.Error("Getting A found value that shouldn't exist:", a)
+	}
+
+	b, expiration, found := tc.GetWithExpiration("b")
+	if found || b != nil || !expiration.IsZero() {
+		t.Error("Getting B found value that shouldn't exist:", b)
+	}
+
+	c, expiration, found := tc.GetWithExpiration("c")
+	if found || c != nil || !expiration.IsZero() {
+		t.Error("Getting C found value that shouldn't exist:", c)
+	}
+
+	tc.Set("a", 1, DefaultExpiration)
+	tc.Set("b", "b", DefaultExpiration)
+	tc.Set("c", 3.5, DefaultExpiration)
+	tc.Set("d", 1, NoExpiration)
+	tc.Set("e", 1, 50*time.Millisecond)
+
+	x, expiration, found := tc.GetWithExpiration("a")
+	if !found {
+		t.Error("a was not found while getting a2")
+	}
+	if x == nil {
+		t.Error("x for a is nil")
+	} else if a2 := x.(int); a2+2 != 3 {
+		t.Error("a2 (which should be 1) plus 2 does not equal 3; value:", a2)
+	}
+	if !expiration.IsZero() {
+		t.Error("expiration for a is not a zeroed time")
+	}
+
+	x, expiration, found = tc.GetWithExpiration("b")
+	if !found {
+		t.Error("b was not found while getting b2")
+	}
+	if x == nil {
+		t.Error("x for b is nil")
+	} else if b2 := x.(string); b2+"B" != "bB" {
+		t.Error("b2 (which should be b) plus B does not equal bB; value:", b2)
+	}
+	if !expiration.IsZero() {
+		t.Error("expiration for b is not a zeroed time")
+	}
+
+	x, expiration, found = tc.GetWithExpiration("c")
+	if !found {
+		t.Error("c was not found while getting c2")
+	}
+	if x == nil {
+		t.Error("x for c is nil")
+	} else if c2 := x.(float64); c2+1.2 != 4.7 {
+		t.Error("c2 (which should be 3.5) plus 1.2 does not equal 4.7; value:", c2)
+	}
+	if !expiration.IsZero() {
+		t.Error("expiration for c is not a zeroed time")
+	}
+
+	x, expiration, found = tc.GetWithExpiration("d")
+	if !found {
+		t.Error("d was not found while getting d2")
+	}
+	if x == nil {
+		t.Error("x for d is nil")
+	} else if d2 := x.(int); d2+2 != 3 {
+		t.Error("d (which should be 1) plus 2 does not equal 3; value:", d2)
+	}
+	if !expiration.IsZero() {
+		t.Error("expiration for d is not a zeroed time")
+	}
+
+	x, expiration, found = tc.GetWithExpiration("e")
+	if !found {
+		t.Error("e was not found while getting e2")
+	}
+	if x == nil {
+		t.Error("x for e is nil")
+	} else if e2 := x.(int); e2+2 != 3 {
+		t.Error("e (which should be 1) plus 2 does not equal 3; value:", e2)
+	}
+	if expiration.UnixNano() != tc.items["e"].Expiration {
+		t.Error("expiration for e is not the correct time")
+	}
+	if expiration.UnixNano() < time.Now().UnixNano() {
+		t.Error("expiration for e is in the past")
+	}
+}
+
+func Test_Delete(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("foo", "bar", DefaultExpiration)
 	tc.Delete("foo")
@@ -192,7 +322,7 @@ func TestDelete(t *testing.T) {
 	}
 }
 
-func TestItemCount(t *testing.T) {
+func Test_Count(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("foo", "1", DefaultExpiration)
 	tc.Set("bar", "2", DefaultExpiration)
@@ -202,11 +332,11 @@ func TestItemCount(t *testing.T) {
 	}
 }
 
-func TestFlush(t *testing.T) {
+func Test_Clear(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("foo", "bar", DefaultExpiration)
 	tc.Set("baz", "yes", DefaultExpiration)
-	tc.Flush()
+	tc.Clear()
 	x, found := tc.Get("foo")
 	if found {
 		t.Error("foo was found, but it should have been deleted")
@@ -223,50 +353,7 @@ func TestFlush(t *testing.T) {
 	}
 }
 
-func TestIncrementOverflowInt(t *testing.T) {
-	tc := New(DefaultExpiration, 0)
-	tc.Set("int8", int8(127), DefaultExpiration)
-	err := tc.Incr("int8", 1)
-	if err != nil {
-		t.Error("Error incrementing int8:", err)
-	}
-	x, _ := tc.Get("int8")
-	int8 := x.(int8)
-	if int8 != -128 {
-		t.Error("int8 did not overflow as expected; value:", int8)
-	}
-
-}
-
-func TestIncrementOverflowUint(t *testing.T) {
-	tc := New(DefaultExpiration, 0)
-	tc.Set("uint8", uint8(255), DefaultExpiration)
-	err := tc.Incr("uint8", 1)
-	if err != nil {
-		t.Error("Error incrementing int8:", err)
-	}
-	x, _ := tc.Get("uint8")
-	uint8 := x.(uint8)
-	if uint8 != 0 {
-		t.Error("uint8 did not overflow as expected; value:", uint8)
-	}
-}
-
-func TestDecrementUnderflowUint(t *testing.T) {
-	tc := New(DefaultExpiration, 0)
-	tc.Set("uint8", uint8(0), DefaultExpiration)
-	err := tc.Decr("uint8", 1)
-	if err != nil {
-		t.Error("Error decrementing int8:", err)
-	}
-	x, _ := tc.Get("uint8")
-	uint8 := x.(uint8)
-	if uint8 != 255 {
-		t.Error("uint8 did not underflow as expected; value:", uint8)
-	}
-}
-
-func TestOnEvicted(t *testing.T) {
+func Test_OnEvicted(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("foo", 3, DefaultExpiration)
 	if tc.onEvicted != nil {
@@ -289,7 +376,7 @@ func TestOnEvicted(t *testing.T) {
 	}
 }
 
-func TestCacheSerialization(t *testing.T) {
+func Test_CacheSerialization(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	testFillAndSerialize(t, tc)
 
@@ -385,7 +472,7 @@ func testFillAndSerialize(t *testing.T, tc *Cache) {
 		t.Error("s2r[1].Num is not 3")
 	}
 
-	s3, found := oc.get("[]*struct")
+	s3, found := oc.getValue("[]*struct")
 	if !found {
 		t.Error("[]*struct was not found")
 	}
@@ -400,7 +487,7 @@ func testFillAndSerialize(t *testing.T, tc *Cache) {
 		t.Error("s3r[1].Num is not 5")
 	}
 
-	s4, found := oc.get("structception")
+	s4, found := oc.getValue("structception")
 	if !found {
 		t.Error("structception was not found")
 	}
@@ -416,20 +503,20 @@ func testFillAndSerialize(t *testing.T, tc *Cache) {
 	}
 }
 
-func TestFileSerialization(t *testing.T) {
+func Test_FileSerialization(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
-	tc.Add("a", "a", DefaultExpiration)
-	tc.Add("b", "b", DefaultExpiration)
+	tc.SetNX("a", "a", DefaultExpiration)
+	tc.SetNX("b", "b", DefaultExpiration)
 	f, err := os.CreateTemp("", "go-cache-cache.dat")
 	if err != nil {
 		t.Fatal("Couldn't create cache file:", err)
 	}
 	fname := f.Name()
-	f.Close()
-	tc.SaveFile(fname)
+	_ = f.Close()
+	_ = tc.SaveFile(fname)
 
 	oc := New(DefaultExpiration, 0)
-	oc.Add("a", "aa", 0) // this should not be overwritten
+	oc.SetNX("a", "aa", 0) // this should not be overwritten
 	err = oc.LoadFile(fname)
 	if err != nil {
 		t.Error(err)
@@ -455,7 +542,7 @@ func TestFileSerialization(t *testing.T) {
 	}
 }
 
-func TestSerializeUnserializable(t *testing.T) {
+func Test_SerializeUnserializable(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	ch := make(chan bool, 1)
 	ch <- true
@@ -464,350 +551,5 @@ func TestSerializeUnserializable(t *testing.T) {
 	err := tc.Save(fp) // this should fail gracefully
 	if err.Error() != "gob NewTypeObject can't handle type: chan bool" {
 		t.Error("Error from Save was not gob NewTypeObject can't handle type chan bool:", err)
-	}
-}
-
-func BenchmarkCacheGetExpiring(b *testing.B) {
-	benchmarkCacheGet(b, 5*time.Minute)
-}
-
-func BenchmarkCacheGetNotExpiring(b *testing.B) {
-	benchmarkCacheGet(b, NoExpiration)
-}
-
-func benchmarkCacheGet(b *testing.B, exp time.Duration) {
-	b.StopTimer()
-	tc := New(exp, 0)
-	tc.Set("foo", "bar", DefaultExpiration)
-	b.StartTimer()
-	for i := 0; i < b.N; i++ {
-		tc.Get("foo")
-	}
-}
-
-func BenchmarkRWMutexMapGet(b *testing.B) {
-	b.StopTimer()
-	m := map[string]string{
-		"foo": "bar",
-	}
-	mu := sync.RWMutex{}
-	b.StartTimer()
-	for i := 0; i < b.N; i++ {
-		mu.RLock()
-		_, _ = m["foo"]
-		mu.RUnlock()
-	}
-}
-
-func BenchmarkRWMutexInterfaceMapGetStruct(b *testing.B) {
-	b.StopTimer()
-	s := struct{ name string }{name: "foo"}
-	m := map[any]string{
-		s: "bar",
-	}
-	mu := sync.RWMutex{}
-	b.StartTimer()
-	for i := 0; i < b.N; i++ {
-		mu.RLock()
-		_, _ = m[s]
-		mu.RUnlock()
-	}
-}
-
-func BenchmarkRWMutexInterfaceMapGetString(b *testing.B) {
-	b.StopTimer()
-	m := map[any]string{
-		"foo": "bar",
-	}
-	mu := sync.RWMutex{}
-	b.StartTimer()
-	for i := 0; i < b.N; i++ {
-		mu.RLock()
-		_, _ = m["foo"]
-		mu.RUnlock()
-	}
-}
-
-func BenchmarkCacheGetConcurrentExpiring(b *testing.B) {
-	benchmarkCacheGetConcurrent(b, 5*time.Minute)
-}
-
-func BenchmarkCacheGetConcurrentNotExpiring(b *testing.B) {
-	benchmarkCacheGetConcurrent(b, NoExpiration)
-}
-
-func benchmarkCacheGetConcurrent(b *testing.B, exp time.Duration) {
-	b.StopTimer()
-	tc := New(exp, 0)
-	tc.Set("foo", "bar", DefaultExpiration)
-	wg := new(sync.WaitGroup)
-	workers := runtime.NumCPU()
-	each := b.N / workers
-	wg.Add(workers)
-	b.StartTimer()
-	for i := 0; i < workers; i++ {
-		go func() {
-			for j := 0; j < each; j++ {
-				tc.Get("foo")
-			}
-			wg.Done()
-		}()
-	}
-	wg.Wait()
-}
-
-func BenchmarkRWMutexMapGetConcurrent(b *testing.B) {
-	b.StopTimer()
-	m := map[string]string{
-		"foo": "bar",
-	}
-	mu := sync.RWMutex{}
-	wg := new(sync.WaitGroup)
-	workers := runtime.NumCPU()
-	each := b.N / workers
-	wg.Add(workers)
-	b.StartTimer()
-	for i := 0; i < workers; i++ {
-		go func() {
-			for j := 0; j < each; j++ {
-				mu.RLock()
-				_, _ = m["foo"]
-				mu.RUnlock()
-			}
-			wg.Done()
-		}()
-	}
-	wg.Wait()
-}
-
-func BenchmarkCacheGetManyConcurrentExpiring(b *testing.B) {
-	benchmarkCacheGetManyConcurrent(b, 5*time.Minute)
-}
-
-func BenchmarkCacheGetManyConcurrentNotExpiring(b *testing.B) {
-	benchmarkCacheGetManyConcurrent(b, NoExpiration)
-}
-
-func benchmarkCacheGetManyConcurrent(b *testing.B, exp time.Duration) {
-	// This is the same as BenchmarkCacheGetConcurrent, but its result
-	// can be compared against BenchmarkShardedCacheGetManyConcurrent
-	// in sharded_test.go.
-	b.StopTimer()
-	n := 10000
-	tc := New(exp, 0)
-	keys := make([]string, n)
-	for i := 0; i < n; i++ {
-		k := "foo" + strconv.Itoa(i)
-		keys[i] = k
-		tc.Set(k, "bar", DefaultExpiration)
-	}
-	each := b.N / n
-	wg := new(sync.WaitGroup)
-	wg.Add(n)
-	for _, v := range keys {
-		go func(k string) {
-			for j := 0; j < each; j++ {
-				tc.Get(k)
-			}
-			wg.Done()
-		}(v)
-	}
-	b.StartTimer()
-	wg.Wait()
-}
-
-func BenchmarkCacheSetExpiring(b *testing.B) {
-	benchmarkCacheSet(b, 5*time.Minute)
-}
-
-func BenchmarkCacheSetNotExpiring(b *testing.B) {
-	benchmarkCacheSet(b, NoExpiration)
-}
-
-func benchmarkCacheSet(b *testing.B, exp time.Duration) {
-	b.StopTimer()
-	tc := New(exp, 0)
-	b.StartTimer()
-	for i := 0; i < b.N; i++ {
-		tc.Set("foo", "bar", DefaultExpiration)
-	}
-}
-
-func BenchmarkRWMutexMapSet(b *testing.B) {
-	b.StopTimer()
-	m := map[string]string{}
-	mu := sync.RWMutex{}
-	b.StartTimer()
-	for i := 0; i < b.N; i++ {
-		mu.Lock()
-		m["foo"] = "bar"
-		mu.Unlock()
-	}
-}
-
-func BenchmarkCacheSetDelete(b *testing.B) {
-	b.StopTimer()
-	tc := New(DefaultExpiration, 0)
-	b.StartTimer()
-	for i := 0; i < b.N; i++ {
-		tc.Set("foo", "bar", DefaultExpiration)
-		tc.Delete("foo")
-	}
-}
-
-func BenchmarkRWMutexMapSetDelete(b *testing.B) {
-	b.StopTimer()
-	m := map[string]string{}
-	mu := sync.RWMutex{}
-	b.StartTimer()
-	for i := 0; i < b.N; i++ {
-		mu.Lock()
-		m["foo"] = "bar"
-		mu.Unlock()
-		mu.Lock()
-		delete(m, "foo")
-		mu.Unlock()
-	}
-}
-
-func BenchmarkCacheSetDeleteSingleLock(b *testing.B) {
-	b.StopTimer()
-	tc := New(DefaultExpiration, 0)
-	b.StartTimer()
-	for i := 0; i < b.N; i++ {
-		tc.mu.Lock()
-		tc.set("foo", "bar", DefaultExpiration)
-		tc.delete("foo")
-		tc.mu.Unlock()
-	}
-}
-
-func BenchmarkRWMutexMapSetDeleteSingleLock(b *testing.B) {
-	b.StopTimer()
-	m := map[string]string{}
-	mu := sync.RWMutex{}
-	b.StartTimer()
-	for i := 0; i < b.N; i++ {
-		mu.Lock()
-		m["foo"] = "bar"
-		delete(m, "foo")
-		mu.Unlock()
-	}
-}
-
-func BenchmarkIncrementInt(b *testing.B) {
-	b.StopTimer()
-	tc := New(DefaultExpiration, 0)
-	tc.Set("foo", 0, DefaultExpiration)
-	b.StartTimer()
-	for i := 0; i < b.N; i++ {
-		tc.IncrInt("foo", 1)
-	}
-}
-
-func BenchmarkDeleteExpiredLoop(b *testing.B) {
-	b.StopTimer()
-	tc := New(5*time.Minute, 0)
-	tc.mu.Lock()
-	for i := 0; i < 100000; i++ {
-		tc.set(strconv.Itoa(i), "bar", DefaultExpiration)
-	}
-	tc.mu.Unlock()
-	b.StartTimer()
-	for i := 0; i < b.N; i++ {
-		tc.DeleteExpired()
-	}
-}
-
-func TestGetWithExpiration(t *testing.T) {
-	tc := New(DefaultExpiration, 0)
-
-	a, expiration, found := tc.GetWithExpiration("a")
-	if found || a != nil || !expiration.IsZero() {
-		t.Error("Getting A found value that shouldn't exist:", a)
-	}
-
-	b, expiration, found := tc.GetWithExpiration("b")
-	if found || b != nil || !expiration.IsZero() {
-		t.Error("Getting B found value that shouldn't exist:", b)
-	}
-
-	c, expiration, found := tc.GetWithExpiration("c")
-	if found || c != nil || !expiration.IsZero() {
-		t.Error("Getting C found value that shouldn't exist:", c)
-	}
-
-	tc.Set("a", 1, DefaultExpiration)
-	tc.Set("b", "b", DefaultExpiration)
-	tc.Set("c", 3.5, DefaultExpiration)
-	tc.Set("d", 1, NoExpiration)
-	tc.Set("e", 1, 50*time.Millisecond)
-
-	x, expiration, found := tc.GetWithExpiration("a")
-	if !found {
-		t.Error("a was not found while getting a2")
-	}
-	if x == nil {
-		t.Error("x for a is nil")
-	} else if a2 := x.(int); a2+2 != 3 {
-		t.Error("a2 (which should be 1) plus 2 does not equal 3; value:", a2)
-	}
-	if !expiration.IsZero() {
-		t.Error("expiration for a is not a zeroed time")
-	}
-
-	x, expiration, found = tc.GetWithExpiration("b")
-	if !found {
-		t.Error("b was not found while getting b2")
-	}
-	if x == nil {
-		t.Error("x for b is nil")
-	} else if b2 := x.(string); b2+"B" != "bB" {
-		t.Error("b2 (which should be b) plus B does not equal bB; value:", b2)
-	}
-	if !expiration.IsZero() {
-		t.Error("expiration for b is not a zeroed time")
-	}
-
-	x, expiration, found = tc.GetWithExpiration("c")
-	if !found {
-		t.Error("c was not found while getting c2")
-	}
-	if x == nil {
-		t.Error("x for c is nil")
-	} else if c2 := x.(float64); c2+1.2 != 4.7 {
-		t.Error("c2 (which should be 3.5) plus 1.2 does not equal 4.7; value:", c2)
-	}
-	if !expiration.IsZero() {
-		t.Error("expiration for c is not a zeroed time")
-	}
-
-	x, expiration, found = tc.GetWithExpiration("d")
-	if !found {
-		t.Error("d was not found while getting d2")
-	}
-	if x == nil {
-		t.Error("x for d is nil")
-	} else if d2 := x.(int); d2+2 != 3 {
-		t.Error("d (which should be 1) plus 2 does not equal 3; value:", d2)
-	}
-	if !expiration.IsZero() {
-		t.Error("expiration for d is not a zeroed time")
-	}
-
-	x, expiration, found = tc.GetWithExpiration("e")
-	if !found {
-		t.Error("e was not found while getting e2")
-	}
-	if x == nil {
-		t.Error("x for e is nil")
-	} else if e2 := x.(int); e2+2 != 3 {
-		t.Error("e (which should be 1) plus 2 does not equal 3; value:", e2)
-	}
-	if expiration.UnixNano() != tc.items["e"].Expiration {
-		t.Error("expiration for e is not the correct time")
-	}
-	if expiration.UnixNano() < time.Now().UnixNano() {
-		t.Error("expiration for e is in the past")
 	}
 }

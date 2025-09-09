@@ -1,56 +1,64 @@
 package cache
 
-import "fmt"
+import (
+	"fmt"
+)
+
+type Number interface {
+	~int | ~int8 | ~int16 | ~int32 | ~int64 |
+		~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 | ~uintptr |
+		~float32 | ~float64
+}
 
 // Incr increment an item of type int, int8, int16, int32, int64, uintptr, uint,
 // uint8, uint32, or uint64, float32 or float64 by n. Returns an error if the
-// item's value is not an integer, if it was not found, or if it is not
+// item's value is not an number, if it was not found, or if it is not
 // possible to increment it by n. To retrieve the incremented value, use one
-// of the specialized methods, e.g. IncrementInt64.
+// of the specialized methods, e.g. IncrInt64.
 func (c *cache) Incr(k string, n int64) error {
 	c.mu.Lock()
 	v, found := c.items[k]
 	if !found || v.Expired() {
 		c.mu.Unlock()
-		return fmt.Errorf("Item %s not found", k)
+		return ErrValueNotFound
 	}
-	switch vv := v.Object.(type) {
+	switch vv := v.Value.(type) {
 	case int:
-		v.Object = vv + int(n)
+		v.Value = vv + int(n)
 	case int8:
-		v.Object = vv + int8(n)
+		v.Value = vv + int8(n)
 	case int16:
-		v.Object = vv + int16(n)
+		v.Value = vv + int16(n)
 	case int32:
-		v.Object = vv + int32(n)
+		v.Value = vv + int32(n)
 	case int64:
-		v.Object = vv + n
+		v.Value = vv + n
 	case uint:
-		v.Object = vv + uint(n)
+		v.Value = vv + uint(n)
 	case uintptr:
-		v.Object = vv + uintptr(n)
+		v.Value = vv + uintptr(n)
 	case uint8:
-		v.Object = vv + uint8(n)
+		v.Value = vv + uint8(n)
 	case uint16:
-		v.Object = vv + uint16(n)
+		v.Value = vv + uint16(n)
 	case uint32:
-		v.Object = vv + uint32(n)
+		v.Value = vv + uint32(n)
 	case uint64:
-		v.Object = vv + uint64(n)
+		v.Value = vv + uint64(n)
 	case float32:
-		v.Object = vv + float32(n)
+		v.Value = vv + float32(n)
 	case float64:
-		v.Object = vv + float64(n)
+		v.Value = vv + float64(n)
 	default:
 		c.mu.Unlock()
-		return fmt.Errorf("The value for %s is not an integer", k)
+		return ErrValueNotValidNumber
 	}
 	c.items[k] = v
 	c.mu.Unlock()
 	return nil
 }
 
-// IncrFloat Increment an item of type float32 or float64 by n. Returns an error if the
+// IncrFloat increment an item of type float32 or float64 by n. Returns an error if the
 // item's value is not floating point, if it was not found, or if it is not
 // possible to increment it by n. Pass a negative number to decrement the
 // value. To retrieve the incremented value, use one of the specialized methods.
@@ -59,359 +67,163 @@ func (c *cache) IncrFloat(k string, n float64) error {
 	v, found := c.items[k]
 	if !found || v.Expired() {
 		c.mu.Unlock()
-		return fmt.Errorf("Item %s not found", k)
+		return ErrValueNotFound
 	}
-	switch vv := v.Object.(type) {
+	switch vv := v.Value.(type) {
 	case float32:
-		v.Object = vv + float32(n)
+		v.Value = vv + float32(n)
 	case float64:
-		v.Object = vv + n
+		v.Value = vv + n
 	default:
 		c.mu.Unlock()
-		return fmt.Errorf("The value for %s does not have type float32 or float64", k)
+		return ErrValueNotValidFloat
 	}
 	c.items[k] = v
 	c.mu.Unlock()
 	return nil
 }
 
-// IncrInt Increment an item of type int by n. Returns an error if the item's value is
+// IncrInt increment an item of type int by n. Returns an error if the item's value is
 // not an int, or if it was not found. If there is no error, the incremented
 // value is returned.
 func (c *cache) IncrInt(k string, n int) (int, error) {
-	c.mu.Lock()
-	v, found := c.items[k]
-	if !found || v.Expired() {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("Item %s not found", k)
-	}
-	rv, ok := v.Object.(int)
-	if !ok {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("The value for %s is not an int", k)
-	}
-	nv := rv + n
-	v.Object = nv
-	c.items[k] = v
-	c.mu.Unlock()
-	return nv, nil
+	return incr(c, k, n)
 }
 
-// IncrInt8 Increment an item of type int8 by n. Returns an error if the item's value is
+// IncrInt8 increment an item of type int8 by n. Returns an error if the item's value is
 // not an int8, or if it was not found. If there is no error, the incremented
 // value is returned.
 func (c *cache) IncrInt8(k string, n int8) (int8, error) {
-	c.mu.Lock()
-	v, found := c.items[k]
-	if !found || v.Expired() {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("Item %s not found", k)
-	}
-	rv, ok := v.Object.(int8)
-	if !ok {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("The value for %s is not an int8", k)
-	}
-	nv := rv + n
-	v.Object = nv
-	c.items[k] = v
-	c.mu.Unlock()
-	return nv, nil
+	return incr(c, k, n)
 }
 
-// IncrInt16 Increment an item of type int16 by n. Returns an error if the item's value is
+// IncrInt16 increment an item of type int16 by n. Returns an error if the item's value is
 // not an int16, or if it was not found. If there is no error, the incremented
 // value is returned.
 func (c *cache) IncrInt16(k string, n int16) (int16, error) {
-	c.mu.Lock()
-	v, found := c.items[k]
-	if !found || v.Expired() {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("Item %s not found", k)
-	}
-	rv, ok := v.Object.(int16)
-	if !ok {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("The value for %s is not an int16", k)
-	}
-	nv := rv + n
-	v.Object = nv
-	c.items[k] = v
-	c.mu.Unlock()
-	return nv, nil
+	return incr(c, k, n)
 }
 
-// IncrInt32 Increment an item of type int32 by n. Returns an error if the item's value is
+// IncrInt32 increment an item of type int32 by n. Returns an error if the item's value is
 // not an int32, or if it was not found. If there is no error, the incremented
 // value is returned.
 func (c *cache) IncrInt32(k string, n int32) (int32, error) {
-	c.mu.Lock()
-	v, found := c.items[k]
-	if !found || v.Expired() {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("Item %s not found", k)
-	}
-	rv, ok := v.Object.(int32)
-	if !ok {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("The value for %s is not an int32", k)
-	}
-	nv := rv + n
-	v.Object = nv
-	c.items[k] = v
-	c.mu.Unlock()
-	return nv, nil
+	return incr(c, k, n)
 }
 
-// IncrInt64 Increment an item of type int64 by n. Returns an error if the item's value is
+// IncrInt64 increment an item of type int64 by n. Returns an error if the item's value is
 // not an int64, or if it was not found. If there is no error, the incremented
 // value is returned.
 func (c *cache) IncrInt64(k string, n int64) (int64, error) {
-	c.mu.Lock()
-	v, found := c.items[k]
-	if !found || v.Expired() {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("Item %s not found", k)
-	}
-	rv, ok := v.Object.(int64)
-	if !ok {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("The value for %s is not an int64", k)
-	}
-	nv := rv + n
-	v.Object = nv
-	c.items[k] = v
-	c.mu.Unlock()
-	return nv, nil
+	return incr(c, k, n)
 }
 
-// IncrUint Increment an item of type uint by n. Returns an error if the item's value is
+// IncrUint increment an item of type uint by n. Returns an error if the item's value is
 // not an uint, or if it was not found. If there is no error, the incremented
 // value is returned.
 func (c *cache) IncrUint(k string, n uint) (uint, error) {
-	c.mu.Lock()
-	v, found := c.items[k]
-	if !found || v.Expired() {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("Item %s not found", k)
-	}
-	rv, ok := v.Object.(uint)
-	if !ok {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("The value for %s is not an uint", k)
-	}
-	nv := rv + n
-	v.Object = nv
-	c.items[k] = v
-	c.mu.Unlock()
-	return nv, nil
+	return incr(c, k, n)
 }
 
-// IncrUintptr Increment an item of type uintptr by n. Returns an error if the item's value
+// IncrUintptr increment an item of type uintptr by n. Returns an error if the item's value
 // is not an uintptr, or if it was not found. If there is no error, the
 // incremented value is returned.
 func (c *cache) IncrUintptr(k string, n uintptr) (uintptr, error) {
-	c.mu.Lock()
-	v, found := c.items[k]
-	if !found || v.Expired() {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("Item %s not found", k)
-	}
-	rv, ok := v.Object.(uintptr)
-	if !ok {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("The value for %s is not an uintptr", k)
-	}
-	nv := rv + n
-	v.Object = nv
-	c.items[k] = v
-	c.mu.Unlock()
-	return nv, nil
+	return incr(c, k, n)
 }
 
-// IncrUint8 Increment an item of type uint8 by n. Returns an error if the item's value
+// IncrUint8 increment an item of type uint8 by n. Returns an error if the item's value
 // is not an uint8, or if it was not found. If there is no error, the
 // incremented value is returned.
 func (c *cache) IncrUint8(k string, n uint8) (uint8, error) {
-	c.mu.Lock()
-	v, found := c.items[k]
-	if !found || v.Expired() {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("Item %s not found", k)
-	}
-	rv, ok := v.Object.(uint8)
-	if !ok {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("The value for %s is not an uint8", k)
-	}
-	nv := rv + n
-	v.Object = nv
-	c.items[k] = v
-	c.mu.Unlock()
-	return nv, nil
+	return incr(c, k, n)
 }
 
-// IncrUint16 Increment an item of type uint16 by n. Returns an error if the item's value
+// IncrUint16 increment an item of type uint16 by n. Returns an error if the item's value
 // is not an uint16, or if it was not found. If there is no error, the
 // incremented value is returned.
 func (c *cache) IncrUint16(k string, n uint16) (uint16, error) {
-	c.mu.Lock()
-	v, found := c.items[k]
-	if !found || v.Expired() {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("Item %s not found", k)
-	}
-	rv, ok := v.Object.(uint16)
-	if !ok {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("The value for %s is not an uint16", k)
-	}
-	nv := rv + n
-	v.Object = nv
-	c.items[k] = v
-	c.mu.Unlock()
-	return nv, nil
+	return incr(c, k, n)
 }
 
-// IncrUint32 Increment an item of type uint32 by n. Returns an error if the item's value
+// IncrUint32 increment an item of type uint32 by n. Returns an error if the item's value
 // is not an uint32, or if it was not found. If there is no error, the
 // incremented value is returned.
 func (c *cache) IncrUint32(k string, n uint32) (uint32, error) {
-	c.mu.Lock()
-	v, found := c.items[k]
-	if !found || v.Expired() {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("Item %s not found", k)
-	}
-	rv, ok := v.Object.(uint32)
-	if !ok {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("The value for %s is not an uint32", k)
-	}
-	nv := rv + n
-	v.Object = nv
-	c.items[k] = v
-	c.mu.Unlock()
-	return nv, nil
+	return incr(c, k, n)
 }
 
-// IncrUint64 Increment an item of type uint64 by n. Returns an error if the item's value
+// IncrUint64 increment an item of type uint64 by n. Returns an error if the item's value
 // is not an uint64, or if it was not found. If there is no error, the
 // incremented value is returned.
 func (c *cache) IncrUint64(k string, n uint64) (uint64, error) {
-	c.mu.Lock()
-	v, found := c.items[k]
-	if !found || v.Expired() {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("Item %s not found", k)
-	}
-	rv, ok := v.Object.(uint64)
-	if !ok {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("The value for %s is not an uint64", k)
-	}
-	nv := rv + n
-	v.Object = nv
-	c.items[k] = v
-	c.mu.Unlock()
-	return nv, nil
+	return incr(c, k, n)
 }
 
-// IncrFloat32 Increment an item of type float32 by n. Returns an error if the item's value
+// IncrFloat32 increment an item of type float32 by n. Returns an error if the item's value
 // is not an float32, or if it was not found. If there is no error, the
 // incremented value is returned.
 func (c *cache) IncrFloat32(k string, n float32) (float32, error) {
-	c.mu.Lock()
-	v, found := c.items[k]
-	if !found || v.Expired() {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("Item %s not found", k)
-	}
-	rv, ok := v.Object.(float32)
-	if !ok {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("The value for %s is not an float32", k)
-	}
-	nv := rv + n
-	v.Object = nv
-	c.items[k] = v
-	c.mu.Unlock()
-	return nv, nil
+	return incr(c, k, n)
 }
 
-// IncrFloat64 Increment an item of type float64 by n. Returns an error if the item's value
+// IncrFloat64 increment an item of type float64 by n. Returns an error if the item's value
 // is not an float64, or if it was not found. If there is no error, the
 // incremented value is returned.
 func (c *cache) IncrFloat64(k string, n float64) (float64, error) {
-	c.mu.Lock()
-	v, found := c.items[k]
-	if !found || v.Expired() {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("Item %s not found", k)
-	}
-	rv, ok := v.Object.(float64)
-	if !ok {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("The value for %s is not an float64", k)
-	}
-	nv := rv + n
-	v.Object = nv
-	c.items[k] = v
-	c.mu.Unlock()
-	return nv, nil
+	return incr(c, k, n)
 }
 
-// Decr an item of type int, int8, int16, int32, int64, uintptr, uint,
+// Decr decrement an item of type int, int8, int16, int32, int64, uintptr, uint,
 // uint8, uint32, or uint64, float32 or float64 by n. Returns an error if the
-// item's value is not an integer, if it was not found, or if it is not
+// item's value is not an number, if it was not found, or if it is not
 // possible to decrement it by n. To retrieve the decremented value, use one
-// of the specialized methods, e.g. DecrementInt64.
+// of the specialized methods, e.g. DecrInt64.
 func (c *cache) Decr(k string, n int64) error {
-	// TODO: Implement Increment and Decrement more cleanly.
-	// (Cannot do Increment(k, n*-1) for uints.)
+	// (Cannot do Incr(k, n*-1) for uints.)
 	c.mu.Lock()
 	v, found := c.items[k]
 	if !found || v.Expired() {
 		c.mu.Unlock()
-		return fmt.Errorf("Item not found")
+		return ErrValueNotFound
 	}
-	switch vv := v.Object.(type) {
+	switch vv := v.Value.(type) {
 	case int:
-		v.Object = vv - int(n)
+		v.Value = vv - int(n)
 	case int8:
-		v.Object = vv - int8(n)
+		v.Value = vv - int8(n)
 	case int16:
-		v.Object = vv - int16(n)
+		v.Value = vv - int16(n)
 	case int32:
-		v.Object = vv - int32(n)
+		v.Value = vv - int32(n)
 	case int64:
-		v.Object = vv - n
+		v.Value = vv - n
 	case uint:
-		v.Object = vv - uint(n)
+		v.Value = vv - uint(n)
 	case uintptr:
-		v.Object = vv - uintptr(n)
+		v.Value = vv - uintptr(n)
 	case uint8:
-		v.Object = vv - uint8(n)
+		v.Value = vv - uint8(n)
 	case uint16:
-		v.Object = vv - uint16(n)
+		v.Value = vv - uint16(n)
 	case uint32:
-		v.Object = vv - uint32(n)
+		v.Value = vv - uint32(n)
 	case uint64:
-		v.Object = vv - uint64(n)
+		v.Value = vv - uint64(n)
 	case float32:
-		v.Object = vv - float32(n)
+		v.Value = vv - float32(n)
 	case float64:
-		v.Object = vv - float64(n)
+		v.Value = vv - float64(n)
 	default:
 		c.mu.Unlock()
-		return fmt.Errorf("The value for %s is not an integer", k)
+		return ErrValueNotValidNumber
 	}
 	c.items[k] = v
 	c.mu.Unlock()
 	return nil
 }
 
-// DecrFloat Decrement an item of type float32 or float64 by n. Returns an error if the
+// DecrFloat decrement an item of type float32 or float64 by n. Returns an error if the
 // item's value is not floating point, if it was not found, or if it is not
 // possible to decrement it by n. Pass a negative number to decrement the
 // value. To retrieve the decremented value, use one of the specialized methods,
@@ -420,303 +232,150 @@ func (c *cache) DecrFloat(k string, n float64) error {
 	v, found := c.items[k]
 	if !found || v.Expired() {
 		c.mu.Unlock()
-		return fmt.Errorf("Item %s not found", k)
+		return ErrValueNotFound
 	}
-	switch vv := v.Object.(type) {
+	switch vv := v.Value.(type) {
 	case float32:
-		v.Object = vv - float32(n)
+		v.Value = vv - float32(n)
 	case float64:
-		v.Object = vv - n
+		v.Value = vv - n
 	default:
 		c.mu.Unlock()
-		return fmt.Errorf("The value for %s does not have type float32 or float64", k)
+		return ErrValueNotValidFloat
 	}
 	c.items[k] = v
 	c.mu.Unlock()
 	return nil
 }
 
-// DecrInt Decrement an item of type int by n. Returns an error if the item's value is
+// DecrInt decrement an item of type int by n. Returns an error if the item's value is
 // not an int, or if it was not found. If there is no error, the decremented
 // value is returned.
 func (c *cache) DecrInt(k string, n int) (int, error) {
-	c.mu.Lock()
-	v, found := c.items[k]
-	if !found || v.Expired() {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("Item %s not found", k)
-	}
-	rv, ok := v.Object.(int)
-	if !ok {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("The value for %s is not an int", k)
-	}
-	nv := rv - n
-	v.Object = nv
-	c.items[k] = v
-	c.mu.Unlock()
-	return nv, nil
+	return decr(c, k, n)
 }
 
-// DecrInt8 Decrement an item of type int8 by n. Returns an error if the item's value is
+// DecrInt8 decrement an item of type int8 by n. Returns an error if the item's value is
 // not an int8, or if it was not found. If there is no error, the decremented
 // value is returned.
 func (c *cache) DecrInt8(k string, n int8) (int8, error) {
-	c.mu.Lock()
-	v, found := c.items[k]
-	if !found || v.Expired() {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("Item %s not found", k)
-	}
-	rv, ok := v.Object.(int8)
-	if !ok {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("The value for %s is not an int8", k)
-	}
-	nv := rv - n
-	v.Object = nv
-	c.items[k] = v
-	c.mu.Unlock()
-	return nv, nil
+	return decr(c, k, n)
 }
 
-// DecrInt16 Decrement an item of type int16 by n. Returns an error if the item's value is
+// DecrInt16 decrement an item of type int16 by n. Returns an error if the item's value is
 // not an int16, or if it was not found. If there is no error, the decremented
 // value is returned.
 func (c *cache) DecrInt16(k string, n int16) (int16, error) {
-	c.mu.Lock()
-	v, found := c.items[k]
-	if !found || v.Expired() {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("Item %s not found", k)
-	}
-	rv, ok := v.Object.(int16)
-	if !ok {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("The value for %s is not an int16", k)
-	}
-	nv := rv - n
-	v.Object = nv
-	c.items[k] = v
-	c.mu.Unlock()
-	return nv, nil
+	return decr(c, k, n)
 }
 
-// Decrement an item of type int32 by n. Returns an error if the item's value is
+// DecrInt32 an item of type int32 by n. Returns an error if the item's value is
 // not an int32, or if it was not found. If there is no error, the decremented
 // value is returned.
 func (c *cache) DecrInt32(k string, n int32) (int32, error) {
-	c.mu.Lock()
-	v, found := c.items[k]
-	if !found || v.Expired() {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("Item %s not found", k)
-	}
-	rv, ok := v.Object.(int32)
-	if !ok {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("The value for %s is not an int32", k)
-	}
-	nv := rv - n
-	v.Object = nv
-	c.items[k] = v
-	c.mu.Unlock()
-	return nv, nil
+	return decr(c, k, n)
 }
 
-// Decrement an item of type int64 by n. Returns an error if the item's value is
+// DecrInt64 an item of type int64 by n. Returns an error if the item's value is
 // not an int64, or if it was not found. If there is no error, the decremented
 // value is returned.
 func (c *cache) DecrInt64(k string, n int64) (int64, error) {
-	c.mu.Lock()
-	v, found := c.items[k]
-	if !found || v.Expired() {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("Item %s not found", k)
-	}
-	rv, ok := v.Object.(int64)
-	if !ok {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("The value for %s is not an int64", k)
-	}
-	nv := rv - n
-	v.Object = nv
-	c.items[k] = v
-	c.mu.Unlock()
-	return nv, nil
+	return decr(c, k, n)
 }
 
-// Decrement an item of type uint by n. Returns an error if the item's value is
+// decrement an item of type uint by n. Returns an error if the item's value is
 // not an uint, or if it was not found. If there is no error, the decremented
 // value is returned.
 func (c *cache) DecrUint(k string, n uint) (uint, error) {
-	c.mu.Lock()
-	v, found := c.items[k]
-	if !found || v.Expired() {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("Item %s not found", k)
-	}
-	rv, ok := v.Object.(uint)
-	if !ok {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("The value for %s is not an uint", k)
-	}
-	nv := rv - n
-	v.Object = nv
-	c.items[k] = v
-	c.mu.Unlock()
-	return nv, nil
+	return decr(c, k, n)
 }
 
-// Decrement an item of type uintptr by n. Returns an error if the item's value
+// decrement an item of type uintptr by n. Returns an error if the item's value
 // is not an uintptr, or if it was not found. If there is no error, the
 // decremented value is returned.
 func (c *cache) DecrUintptr(k string, n uintptr) (uintptr, error) {
-	c.mu.Lock()
-	v, found := c.items[k]
-	if !found || v.Expired() {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("Item %s not found", k)
-	}
-	rv, ok := v.Object.(uintptr)
-	if !ok {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("The value for %s is not an uintptr", k)
-	}
-	nv := rv - n
-	v.Object = nv
-	c.items[k] = v
-	c.mu.Unlock()
-	return nv, nil
+	return decr(c, k, n)
 }
 
-// Decrement an item of type uint8 by n. Returns an error if the item's value is
+// decrement an item of type uint8 by n. Returns an error if the item's value is
 // not an uint8, or if it was not found. If there is no error, the decremented
 // value is returned.
 func (c *cache) DecrUint8(k string, n uint8) (uint8, error) {
-	c.mu.Lock()
-	v, found := c.items[k]
-	if !found || v.Expired() {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("Item %s not found", k)
-	}
-	rv, ok := v.Object.(uint8)
-	if !ok {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("The value for %s is not an uint8", k)
-	}
-	nv := rv - n
-	v.Object = nv
-	c.items[k] = v
-	c.mu.Unlock()
-	return nv, nil
+	return decr(c, k, n)
 }
 
-// Decrement an item of type uint16 by n. Returns an error if the item's value
+// decrement an item of type uint16 by n. Returns an error if the item's value
 // is not an uint16, or if it was not found. If there is no error, the
 // decremented value is returned.
 func (c *cache) DecrUint16(k string, n uint16) (uint16, error) {
-	c.mu.Lock()
-	v, found := c.items[k]
-	if !found || v.Expired() {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("Item %s not found", k)
-	}
-	rv, ok := v.Object.(uint16)
-	if !ok {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("The value for %s is not an uint16", k)
-	}
-	nv := rv - n
-	v.Object = nv
-	c.items[k] = v
-	c.mu.Unlock()
-	return nv, nil
+	return decr(c, k, n)
 }
 
-// Decrement an item of type uint32 by n. Returns an error if the item's value
+// decrement an item of type uint32 by n. Returns an error if the item's value
 // is not an uint32, or if it was not found. If there is no error, the
 // decremented value is returned.
 func (c *cache) DecrUint32(k string, n uint32) (uint32, error) {
-	c.mu.Lock()
-	v, found := c.items[k]
-	if !found || v.Expired() {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("Item %s not found", k)
-	}
-	rv, ok := v.Object.(uint32)
-	if !ok {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("The value for %s is not an uint32", k)
-	}
-	nv := rv - n
-	v.Object = nv
-	c.items[k] = v
-	c.mu.Unlock()
-	return nv, nil
+	return decr(c, k, n)
 }
 
-// Decrement an item of type uint64 by n. Returns an error if the item's value
+// decrement an item of type uint64 by n. Returns an error if the item's value
 // is not an uint64, or if it was not found. If there is no error, the
 // decremented value is returned.
 func (c *cache) DecrUint64(k string, n uint64) (uint64, error) {
-	c.mu.Lock()
-	v, found := c.items[k]
-	if !found || v.Expired() {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("Item %s not found", k)
-	}
-	rv, ok := v.Object.(uint64)
-	if !ok {
-		c.mu.Unlock()
-		return 0, fmt.Errorf("The value for %s is not an uint64", k)
-	}
-	nv := rv - n
-	v.Object = nv
-	c.items[k] = v
-	c.mu.Unlock()
-	return nv, nil
+	return decr(c, k, n)
 }
 
-// Decrement an item of type float32 by n. Returns an error if the item's value
+// decrement an item of type float32 by n. Returns an error if the item's value
 // is not an float32, or if it was not found. If there is no error, the
 // decremented value is returned.
 func (c *cache) DecrFloat32(k string, n float32) (float32, error) {
+	return decr(c, k, n)
+}
+
+// decrement an item of type float64 by n. Returns an error if the item's value
+// is not an float64, or if it was not found. If there is no error, the
+// decremented value is returned.
+func (c *cache) DecrFloat64(k string, n float64) (float64, error) {
+	return decr(c, k, n)
+}
+
+func incr[T Number](c *cache, k string, n T) (T, error) {
+	var nv T
+
 	c.mu.Lock()
 	v, found := c.items[k]
 	if !found || v.Expired() {
 		c.mu.Unlock()
-		return 0, fmt.Errorf("Item %s not found", k)
+		return nv, ErrValueNotFound
 	}
-	rv, ok := v.Object.(float32)
+	rv, ok := v.Value.(T)
 	if !ok {
 		c.mu.Unlock()
-		return 0, fmt.Errorf("The value for %s is not an float32", k)
+		return nv, fmt.Errorf("cache: the value is not an %T", nv)
 	}
-	nv := rv - n
-	v.Object = nv
+	nv = rv + n
+	v.Value = nv
 	c.items[k] = v
 	c.mu.Unlock()
 	return nv, nil
 }
 
-// Decrement an item of type float64 by n. Returns an error if the item's value
-// is not an float64, or if it was not found. If there is no error, the
-// decremented value is returned.
-func (c *cache) DecrFloat64(k string, n float64) (float64, error) {
+func decr[T Number](c *cache, k string, n T) (T, error) {
+	var nv T
+
 	c.mu.Lock()
 	v, found := c.items[k]
 	if !found || v.Expired() {
 		c.mu.Unlock()
-		return 0, fmt.Errorf("Item %s not found", k)
+		return nv, ErrValueNotFound
 	}
-	rv, ok := v.Object.(float64)
+	rv, ok := v.Value.(T)
 	if !ok {
 		c.mu.Unlock()
-		return 0, fmt.Errorf("The value for %s is not an float64", k)
+		return nv, fmt.Errorf("cache: the value is not an %T", nv)
 	}
-	nv := rv - n
-	v.Object = nv
+	nv = rv - n
+	v.Value = nv
 	c.items[k] = v
 	c.mu.Unlock()
 	return nv, nil

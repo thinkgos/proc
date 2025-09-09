@@ -2,7 +2,7 @@ package cache
 
 import "testing"
 
-func TestIncrementWithInt(t *testing.T) {
+func Test_Incr_Int(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("tint", 1, DefaultExpiration)
 	err := tc.Incr("tint", 2)
@@ -18,7 +18,7 @@ func TestIncrementWithInt(t *testing.T) {
 	}
 }
 
-func TestIncrementWithInt8(t *testing.T) {
+func Test_Incr_Int8(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("tint8", int8(1), DefaultExpiration)
 	err := tc.Incr("tint8", 2)
@@ -34,7 +34,7 @@ func TestIncrementWithInt8(t *testing.T) {
 	}
 }
 
-func TestIncrementWithInt16(t *testing.T) {
+func Test_Incr_Int16(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("tint16", int16(1), DefaultExpiration)
 	err := tc.Incr("tint16", 2)
@@ -50,7 +50,7 @@ func TestIncrementWithInt16(t *testing.T) {
 	}
 }
 
-func TestIncrementWithInt32(t *testing.T) {
+func Test_Incr_Int32(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("tint32", int32(1), DefaultExpiration)
 	err := tc.Incr("tint32", 2)
@@ -66,7 +66,7 @@ func TestIncrementWithInt32(t *testing.T) {
 	}
 }
 
-func TestIncrementWithInt64(t *testing.T) {
+func Test_Incr_Int64(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("tint64", int64(1), DefaultExpiration)
 	err := tc.Incr("tint64", 2)
@@ -82,7 +82,7 @@ func TestIncrementWithInt64(t *testing.T) {
 	}
 }
 
-func TestIncrementWithUint(t *testing.T) {
+func Test_Incr_Uint(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("tuint", uint(1), DefaultExpiration)
 	err := tc.Incr("tuint", 2)
@@ -98,7 +98,7 @@ func TestIncrementWithUint(t *testing.T) {
 	}
 }
 
-func TestIncrementWithUintptr(t *testing.T) {
+func Test_Incr_Uintptr(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("tuintptr", uintptr(1), DefaultExpiration)
 	err := tc.Incr("tuintptr", 2)
@@ -115,7 +115,7 @@ func TestIncrementWithUintptr(t *testing.T) {
 	}
 }
 
-func TestIncrementWithUint8(t *testing.T) {
+func Test_Incr_Uint8(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("tuint8", uint8(1), DefaultExpiration)
 	err := tc.Incr("tuint8", 2)
@@ -131,7 +131,7 @@ func TestIncrementWithUint8(t *testing.T) {
 	}
 }
 
-func TestIncrementWithUint16(t *testing.T) {
+func Test_Incr_Uint16(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("tuint16", uint16(1), DefaultExpiration)
 	err := tc.Incr("tuint16", 2)
@@ -148,7 +148,7 @@ func TestIncrementWithUint16(t *testing.T) {
 	}
 }
 
-func TestIncrementWithUint32(t *testing.T) {
+func Test_Incr_Uint32(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("tuint32", uint32(1), DefaultExpiration)
 	err := tc.Incr("tuint32", 2)
@@ -164,7 +164,7 @@ func TestIncrementWithUint32(t *testing.T) {
 	}
 }
 
-func TestIncrementWithUint64(t *testing.T) {
+func Test_Incr_Uint64(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("tuint64", uint64(1), DefaultExpiration)
 	err := tc.Incr("tuint64", 2)
@@ -181,7 +181,7 @@ func TestIncrementWithUint64(t *testing.T) {
 	}
 }
 
-func TestIncrementWithFloat32(t *testing.T) {
+func Test_Incr_Float32(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("float32", float32(1.5), DefaultExpiration)
 	err := tc.Incr("float32", 2)
@@ -197,7 +197,7 @@ func TestIncrementWithFloat32(t *testing.T) {
 	}
 }
 
-func TestIncrementWithFloat64(t *testing.T) {
+func Test_Incr_Float64(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("float64", float64(1.5), DefaultExpiration)
 	err := tc.Incr("float64", 2)
@@ -213,7 +213,7 @@ func TestIncrementWithFloat64(t *testing.T) {
 	}
 }
 
-func TestIncrementFloatWithFloat32(t *testing.T) {
+func Test_IncrFloat_Float32(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("float32", float32(1.5), DefaultExpiration)
 	err := tc.IncrFloat("float32", 2)
@@ -229,7 +229,7 @@ func TestIncrementFloatWithFloat32(t *testing.T) {
 	}
 }
 
-func TestIncrementFloatWithFloat64(t *testing.T) {
+func Test_IncrFloat_Float64(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("float64", float64(1.5), DefaultExpiration)
 	err := tc.IncrFloat("float64", 2)
@@ -245,7 +245,7 @@ func TestIncrementFloatWithFloat64(t *testing.T) {
 	}
 }
 
-func TestDecrementWithInt(t *testing.T) {
+func Test_Decr_Int(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("int", int(5), DefaultExpiration)
 	err := tc.Decr("int", 2)
@@ -261,7 +261,7 @@ func TestDecrementWithInt(t *testing.T) {
 	}
 }
 
-func TestDecrementWithInt8(t *testing.T) {
+func Test_Decr_Int8(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("int8", int8(5), DefaultExpiration)
 	err := tc.Decr("int8", 2)
@@ -277,7 +277,7 @@ func TestDecrementWithInt8(t *testing.T) {
 	}
 }
 
-func TestDecrementWithInt16(t *testing.T) {
+func Test_Decr_Int16(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("int16", int16(5), DefaultExpiration)
 	err := tc.Decr("int16", 2)
@@ -293,7 +293,7 @@ func TestDecrementWithInt16(t *testing.T) {
 	}
 }
 
-func TestDecrementWithInt32(t *testing.T) {
+func Test_Decr_Int32(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("int32", int32(5), DefaultExpiration)
 	err := tc.Decr("int32", 2)
@@ -309,7 +309,7 @@ func TestDecrementWithInt32(t *testing.T) {
 	}
 }
 
-func TestDecrementWithInt64(t *testing.T) {
+func Test_Decr_Int64(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("int64", int64(5), DefaultExpiration)
 	err := tc.Decr("int64", 2)
@@ -325,7 +325,7 @@ func TestDecrementWithInt64(t *testing.T) {
 	}
 }
 
-func TestDecrementWithUint(t *testing.T) {
+func Test_Decr_Uint(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("uint", uint(5), DefaultExpiration)
 	err := tc.Decr("uint", 2)
@@ -341,7 +341,7 @@ func TestDecrementWithUint(t *testing.T) {
 	}
 }
 
-func TestDecrementWithUintptr(t *testing.T) {
+func Test_Decr_Uintptr(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("uintptr", uintptr(5), DefaultExpiration)
 	err := tc.Decr("uintptr", 2)
@@ -357,7 +357,7 @@ func TestDecrementWithUintptr(t *testing.T) {
 	}
 }
 
-func TestDecrementWithUint8(t *testing.T) {
+func Test_Decr_Uint8(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("uint8", uint8(5), DefaultExpiration)
 	err := tc.Decr("uint8", 2)
@@ -373,7 +373,7 @@ func TestDecrementWithUint8(t *testing.T) {
 	}
 }
 
-func TestDecrementWithUint16(t *testing.T) {
+func Test_Decr_Uint16(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("uint16", uint16(5), DefaultExpiration)
 	err := tc.Decr("uint16", 2)
@@ -389,7 +389,7 @@ func TestDecrementWithUint16(t *testing.T) {
 	}
 }
 
-func TestDecrementWithUint32(t *testing.T) {
+func Test_Decr_Uint32(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("uint32", uint32(5), DefaultExpiration)
 	err := tc.Decr("uint32", 2)
@@ -405,7 +405,7 @@ func TestDecrementWithUint32(t *testing.T) {
 	}
 }
 
-func TestDecrementWithUint64(t *testing.T) {
+func Test_Decr_Uint64(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("uint64", uint64(5), DefaultExpiration)
 	err := tc.Decr("uint64", 2)
@@ -421,7 +421,7 @@ func TestDecrementWithUint64(t *testing.T) {
 	}
 }
 
-func TestDecrementWithFloat32(t *testing.T) {
+func Test_Decr_Float32(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("float32", float32(5.5), DefaultExpiration)
 	err := tc.Decr("float32", 2)
@@ -437,7 +437,7 @@ func TestDecrementWithFloat32(t *testing.T) {
 	}
 }
 
-func TestDecrementWithFloat64(t *testing.T) {
+func Test_Decr_Float64(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("float64", float64(5.5), DefaultExpiration)
 	err := tc.Decr("float64", 2)
@@ -453,7 +453,7 @@ func TestDecrementWithFloat64(t *testing.T) {
 	}
 }
 
-func TestDecrementFloatWithFloat32(t *testing.T) {
+func Test_DecrFloat_Float32(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("float32", float32(5.5), DefaultExpiration)
 	err := tc.DecrFloat("float32", 2)
@@ -469,7 +469,7 @@ func TestDecrementFloatWithFloat32(t *testing.T) {
 	}
 }
 
-func TestDecrementFloatWithFloat64(t *testing.T) {
+func Test_DecrFloat_Float64(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("float64", float64(5.5), DefaultExpiration)
 	err := tc.DecrFloat("float64", 2)
@@ -485,7 +485,7 @@ func TestDecrementFloatWithFloat64(t *testing.T) {
 	}
 }
 
-func TestIncrementInt(t *testing.T) {
+func Test_IncrInt(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("tint", 1, DefaultExpiration)
 	n, err := tc.IncrInt("tint", 2)
@@ -504,7 +504,7 @@ func TestIncrementInt(t *testing.T) {
 	}
 }
 
-func TestIncrementInt8(t *testing.T) {
+func Test_IncrInt8(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("tint8", int8(1), DefaultExpiration)
 	n, err := tc.IncrInt8("tint8", 2)
@@ -523,7 +523,7 @@ func TestIncrementInt8(t *testing.T) {
 	}
 }
 
-func TestIncrementInt16(t *testing.T) {
+func Test_IncrInt16(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("tint16", int16(1), DefaultExpiration)
 	n, err := tc.IncrInt16("tint16", 2)
@@ -542,7 +542,7 @@ func TestIncrementInt16(t *testing.T) {
 	}
 }
 
-func TestIncrementInt32(t *testing.T) {
+func Test_IncrInt32(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("tint32", int32(1), DefaultExpiration)
 	n, err := tc.IncrInt32("tint32", 2)
@@ -561,7 +561,7 @@ func TestIncrementInt32(t *testing.T) {
 	}
 }
 
-func TestIncrementInt64(t *testing.T) {
+func Test_IncrInt64(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("tint64", int64(1), DefaultExpiration)
 	n, err := tc.IncrInt64("tint64", 2)
@@ -580,7 +580,7 @@ func TestIncrementInt64(t *testing.T) {
 	}
 }
 
-func TestIncrementUint(t *testing.T) {
+func Test_IncrUint(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("tuint", uint(1), DefaultExpiration)
 	n, err := tc.IncrUint("tuint", 2)
@@ -599,7 +599,7 @@ func TestIncrementUint(t *testing.T) {
 	}
 }
 
-func TestIncrementUintptr(t *testing.T) {
+func Test_IncrUintptr(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("tuintptr", uintptr(1), DefaultExpiration)
 	n, err := tc.IncrUintptr("tuintptr", 2)
@@ -618,7 +618,7 @@ func TestIncrementUintptr(t *testing.T) {
 	}
 }
 
-func TestIncrementUint8(t *testing.T) {
+func Test_IncrUint8(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("tuint8", uint8(1), DefaultExpiration)
 	n, err := tc.IncrUint8("tuint8", 2)
@@ -637,7 +637,7 @@ func TestIncrementUint8(t *testing.T) {
 	}
 }
 
-func TestIncrementUint16(t *testing.T) {
+func Test_IncrUint16(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("tuint16", uint16(1), DefaultExpiration)
 	n, err := tc.IncrUint16("tuint16", 2)
@@ -656,7 +656,7 @@ func TestIncrementUint16(t *testing.T) {
 	}
 }
 
-func TestIncrementUint32(t *testing.T) {
+func Test_IncrUint32(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("tuint32", uint32(1), DefaultExpiration)
 	n, err := tc.IncrUint32("tuint32", 2)
@@ -675,7 +675,7 @@ func TestIncrementUint32(t *testing.T) {
 	}
 }
 
-func TestIncrementUint64(t *testing.T) {
+func Test_IncrUint64(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("tuint64", uint64(1), DefaultExpiration)
 	n, err := tc.IncrUint64("tuint64", 2)
@@ -694,7 +694,7 @@ func TestIncrementUint64(t *testing.T) {
 	}
 }
 
-func TestIncrementFloat32(t *testing.T) {
+func Test_IncrFloat32(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("float32", float32(1.5), DefaultExpiration)
 	n, err := tc.IncrFloat32("float32", 2)
@@ -713,7 +713,7 @@ func TestIncrementFloat32(t *testing.T) {
 	}
 }
 
-func TestIncrementFloat64(t *testing.T) {
+func Test_IncrFloat64(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("float64", float64(1.5), DefaultExpiration)
 	n, err := tc.IncrFloat64("float64", 2)
@@ -732,7 +732,7 @@ func TestIncrementFloat64(t *testing.T) {
 	}
 }
 
-func TestDecrementInt8(t *testing.T) {
+func Test_DecrInt8(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("int8", int8(5), DefaultExpiration)
 	n, err := tc.DecrInt8("int8", 2)
@@ -751,7 +751,7 @@ func TestDecrementInt8(t *testing.T) {
 	}
 }
 
-func TestDecrementInt16(t *testing.T) {
+func Test_DecrInt16(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("int16", int16(5), DefaultExpiration)
 	n, err := tc.DecrInt16("int16", 2)
@@ -770,7 +770,7 @@ func TestDecrementInt16(t *testing.T) {
 	}
 }
 
-func TestDecrementInt32(t *testing.T) {
+func Test_DecrInt32(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("int32", int32(5), DefaultExpiration)
 	n, err := tc.DecrInt32("int32", 2)
@@ -789,7 +789,7 @@ func TestDecrementInt32(t *testing.T) {
 	}
 }
 
-func TestDecrementInt64(t *testing.T) {
+func Test_DecrInt64(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("int64", int64(5), DefaultExpiration)
 	n, err := tc.DecrInt64("int64", 2)
@@ -808,7 +808,7 @@ func TestDecrementInt64(t *testing.T) {
 	}
 }
 
-func TestDecrementUint(t *testing.T) {
+func Test_DecrUint(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("uint", uint(5), DefaultExpiration)
 	n, err := tc.DecrUint("uint", 2)
@@ -827,7 +827,7 @@ func TestDecrementUint(t *testing.T) {
 	}
 }
 
-func TestDecrementUintptr(t *testing.T) {
+func Test_DecrUintptr(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("uintptr", uintptr(5), DefaultExpiration)
 	n, err := tc.DecrUintptr("uintptr", 2)
@@ -846,7 +846,7 @@ func TestDecrementUintptr(t *testing.T) {
 	}
 }
 
-func TestDecrementUint8(t *testing.T) {
+func Test_DecrUint8(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("uint8", uint8(5), DefaultExpiration)
 	n, err := tc.DecrUint8("uint8", 2)
@@ -865,7 +865,7 @@ func TestDecrementUint8(t *testing.T) {
 	}
 }
 
-func TestDecrementUint16(t *testing.T) {
+func Test_DecrUint16(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("uint16", uint16(5), DefaultExpiration)
 	n, err := tc.DecrUint16("uint16", 2)
@@ -884,7 +884,7 @@ func TestDecrementUint16(t *testing.T) {
 	}
 }
 
-func TestDecrementUint32(t *testing.T) {
+func Test_DecrUint32(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("uint32", uint32(5), DefaultExpiration)
 	n, err := tc.DecrUint32("uint32", 2)
@@ -903,7 +903,7 @@ func TestDecrementUint32(t *testing.T) {
 	}
 }
 
-func TestDecrementUint64(t *testing.T) {
+func Test_DecrUint64(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("uint64", uint64(5), DefaultExpiration)
 	n, err := tc.DecrUint64("uint64", 2)
@@ -922,7 +922,7 @@ func TestDecrementUint64(t *testing.T) {
 	}
 }
 
-func TestDecrementFloat32(t *testing.T) {
+func Test_DecrFloat32(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("float32", float32(5), DefaultExpiration)
 	n, err := tc.DecrFloat32("float32", 2)
@@ -941,7 +941,7 @@ func TestDecrementFloat32(t *testing.T) {
 	}
 }
 
-func TestDecrementFloat64(t *testing.T) {
+func Test_DecrFloat64(t *testing.T) {
 	tc := New(DefaultExpiration, 0)
 	tc.Set("float64", float64(5), DefaultExpiration)
 	n, err := tc.DecrFloat64("float64", 2)
@@ -957,5 +957,47 @@ func TestDecrementFloat64(t *testing.T) {
 	}
 	if x.(float64) != 3 {
 		t.Error("float64 is not 3:", x)
+	}
+}
+
+func Test_IncrOverflowInt(t *testing.T) {
+	tc := New(DefaultExpiration, 0)
+	tc.Set("int8", int8(127), DefaultExpiration)
+	err := tc.Incr("int8", 1)
+	if err != nil {
+		t.Error("Error incrementing int8:", err)
+	}
+	x, _ := tc.Get("int8")
+	int8 := x.(int8)
+	if int8 != -128 {
+		t.Error("int8 did not overflow as expected; value:", int8)
+	}
+}
+
+func Test_IncrOverflowUint(t *testing.T) {
+	tc := New(DefaultExpiration, 0)
+	tc.Set("uint8", uint8(255), DefaultExpiration)
+	err := tc.Incr("uint8", 1)
+	if err != nil {
+		t.Error("Error incrementing int8:", err)
+	}
+	x, _ := tc.Get("uint8")
+	uint8 := x.(uint8)
+	if uint8 != 0 {
+		t.Error("uint8 did not overflow as expected; value:", uint8)
+	}
+}
+
+func Test_DecrUnderflowUint(t *testing.T) {
+	tc := New(DefaultExpiration, 0)
+	tc.Set("uint8", uint8(0), DefaultExpiration)
+	err := tc.Decr("uint8", 1)
+	if err != nil {
+		t.Error("Error decrementing int8:", err)
+	}
+	x, _ := tc.Get("uint8")
+	uint8 := x.(uint8)
+	if uint8 != 255 {
+		t.Error("uint8 did not underflow as expected; value:", uint8)
 	}
 }
