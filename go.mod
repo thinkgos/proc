@@ -5,7 +5,7 @@ go 1.25
 require (
 	github.com/alecthomas/participle/v2 v2.1.4
 	github.com/stretchr/testify v1.11.1
-	golang.org/x/crypto v0.46.0
+	golang.org/x/crypto v0.47.0
 )
 
 require (
