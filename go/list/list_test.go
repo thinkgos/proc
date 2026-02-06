@@ -285,7 +285,7 @@ func TestMove(t *testing.T) {
 	checkListPointers(t, l, []*Element[int]{e1, e3, e2, e4})
 }
 
-// Test PushFront, PushBack, PushFrontList, PushBackList with uninitialized List
+// Test PushFrontViaValue, PushBackViaValue, PushFrontList, PushBackList with uninitialized List
 func TestZeroList(t *testing.T) {
 	var l1 = new(List[int])
 	l1.PushFront(1)
@@ -304,7 +304,7 @@ func TestZeroList(t *testing.T) {
 	checkList(t, l4, []int{1})
 }
 
-// Test that a list l is not modified when calling InsertBefore with a mark that is not an element of l.
+// Test that a list l is not modified when calling InsertBeforeViaValue with a mark that is not an element of l.
 func TestInsertBeforeUnknownMark(t *testing.T) {
 	var l List[int]
 	l.PushBack(1)
@@ -314,7 +314,7 @@ func TestInsertBeforeUnknownMark(t *testing.T) {
 	checkList(t, &l, []int{1, 2, 3})
 }
 
-// Test that a list l is not modified when calling InsertAfter with a mark that is not an element of l.
+// Test that a list l is not modified when calling InsertAfterViaValue with a mark that is not an element of l.
 func TestInsertAfterUnknownMark(t *testing.T) {
 	var l List[int]
 	l.PushBack(1)
