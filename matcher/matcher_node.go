@@ -19,9 +19,17 @@ func NewMatcherNode(name string) *MatcherNode {
 	return &MatcherNode{name: name}
 }
 
-func (mn *MatcherNode) Name() string { return mn.name }
+func (mn *MatcherNode) Name() string {
+	if mn == nil {
+		return "<nil>"
+	}
+	return mn.name
+}
 
 func (mn *MatcherNode) Clone() *MatcherNode {
+	if mn == nil {
+		return nil
+	}
 	return &MatcherNode{
 		name:     mn.name,
 		exact:    maps.Clone(mn.exact),
@@ -66,7 +74,7 @@ func (mn *MatcherNode) AddPrefixes(vs ...string) *MatcherNode {
 	return mn
 }
 
-func (mn *MatcherNode) AddRegexes(vs ...string) *MatcherNode {
+func (mn *MatcherNode) MustAddRegex(vs ...string) *MatcherNode {
 	mn.regexes = append(mn.regexes, vs...)
 	for _, r := range vs {
 		mn.rxs = append(mn.rxs, regexp.MustCompile(r))

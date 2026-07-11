@@ -18,23 +18,23 @@ func TestMatcher_Matches(t *testing.T) {
 		Exact("OPTIONS", "/api/users").
 		Prefix("GET", "/api/orders/").
 		Prefix("POST", "/api/files/upload/").
-		Regex("GET", `^/api/items/\d+$`).
-		Regex("GET", `^/api/v[12]/search(\?.*)?$`).
+		MustRegex("GET", `^/api/items/\d+$`).
+		MustRegex("GET", `^/api/v[12]/search(\?.*)?$`).
 		// 数字 id 参数路由: /api/user/{id}/menu, /api/user/{id}/menu/{menuId}
-		Regex("GET", `^/api/user/\d+/menu$`).
-		Regex("GET", `^/api/user/\d+/menu/\d+$`).
-		Regex("POST", `^/api/user/\d+/menu$`).
-		Regex("DELETE", `^/api/user/\d+/menu/\d+$`).
-		Regex("PUT", `^/api/user/\d+/menu/\d+$`).
+		MustRegex("GET", `^/api/user/\d+/menu$`).
+		MustRegex("GET", `^/api/user/\d+/menu/\d+$`).
+		MustRegex("POST", `^/api/user/\d+/menu$`).
+		MustRegex("DELETE", `^/api/user/\d+/menu/\d+$`).
+		MustRegex("PUT", `^/api/user/\d+/menu/\d+$`).
 		// 字符串 id 参数路由: /api/user/{id} id 可以是任意非空非斜杠字符串
-		Regex("GET", `^/api/user/[^/]+$`).
-		Regex("GET", `^/api/user/[^/]+/profile$`).
-		Regex("POST", `^/api/user/[^/]+$`).
-		Regex("PUT", `^/api/user/[^/]+$`).
-		Regex("DELETE", `^/api/user/[^/]+$`).
+		MustRegex("GET", `^/api/user/[^/]+$`).
+		MustRegex("GET", `^/api/user/[^/]+/profile$`).
+		MustRegex("POST", `^/api/user/[^/]+$`).
+		MustRegex("PUT", `^/api/user/[^/]+$`).
+		MustRegex("DELETE", `^/api/user/[^/]+$`).
 		// 通配路由 /api/user/{id}/menu/**  匹配 menu 下任意子路径
-		Regex("GET", `^/api/user/\d+/menu/.+$`).
-		Regex("POST", `^/api/user/\d+/menu/.+$`).
+		MustRegex("GET", `^/api/user/\d+/menu/.+$`).
+		MustRegex("POST", `^/api/user/\d+/menu/.+$`).
 		Prefix("GET", "/api/static/").
 		Prefix("GET", "/api/user/123/files/")
 
@@ -524,7 +524,7 @@ func TestMatcher_Chain(t *testing.T) {
 	m := NewMatcherHttp().
 		Exact("GET", "/a").
 		Prefix("GET", "/b/").
-		Regex("GET", `^/c/\d+$`).
+		MustRegex("GET", `^/c/\d+$`).
 		Exact("POST", "/d")
 
 	if !m.Matches("GET", "/a") {
@@ -547,7 +547,7 @@ func TestMatcher_MultipleMethods(t *testing.T) {
 	m.Exact("GET", "/first")
 	m.Exact("GET", "/second")
 	m.Prefix("GET", "/api/")
-	m.Regex("GET", `^/v\d+/ok$`)
+	m.MustRegex("GET", `^/v\d+/ok$`)
 
 	tests := []struct {
 		name string
@@ -576,7 +576,7 @@ func TestMatcher_RegexPanic(t *testing.T) {
 			t.Error("无效正则未触发 panic")
 		}
 	}()
-	NewMatcherHttp().Regex("GET", `[invalid`)
+	NewMatcherHttp().MustRegex("GET", `[invalid`)
 }
 
 // TestMatcher_Clone 测试 Clone 方法, 克隆后独立且匹配一致
@@ -584,9 +584,9 @@ func TestMatcher_Clone(t *testing.T) {
 	orig := NewMatcherHttp().
 		Exact("GET", "/api/users", "/api/orders").
 		Prefix("GET", "/api/files/").
-		Regex("GET", `^/api/items/\d+$`).
+		MustRegex("GET", `^/api/items/\d+$`).
 		Exact("POST", "/api/users").
-		Regex("POST", `^/api/user/\d+/menu$`)
+		MustRegex("POST", `^/api/user/\d+/menu$`)
 
 	clone := orig.Clone()
 
@@ -615,7 +615,7 @@ func TestMatcher_Clone(t *testing.T) {
 	// 克隆后修改不影响原对象
 	clone.Exact("GET", "/clone-only")
 	clone.Prefix("DELETE", "/clone/")
-	clone.Regex("PUT", `^/clone/\d+$`)
+	clone.MustRegex("PUT", `^/clone/\d+$`)
 
 	if orig.Matches("GET", "/clone-only") {
 		t.Error("修改克隆后, 原 Matcher 不应匹配 /clone-only")
@@ -734,7 +734,7 @@ func TestMatcher_AnyMethodWithSpecificRules(t *testing.T) {
 		RegexWildcard(`^/metrics/\d+$`).
 		Exact("GET", "/api/users").
 		Prefix("POST", "/api/files/").
-		Regex("DELETE", `^/api/items/\d+$`)
+		MustRegex("DELETE", `^/api/items/\d+$`)
 
 	tests := []struct {
 		name   string
