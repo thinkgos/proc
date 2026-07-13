@@ -26,7 +26,7 @@ func Test_GenerateDuplicateID(t *testing.T) {
 	node, _ := New(WithNode(1))
 
 	var x, y Id
-	for i := 0; i < 1000000; i++ {
+	for range 1000000 {
 		y = node.Next()
 		if x == y {
 			t.Errorf("x(%d) & y(%d) are the same", x, y)
@@ -39,7 +39,7 @@ func Test_Order_Int(t *testing.T) {
 	node, _ := New(WithEntropy(rand.IntN))
 	n := 5000000
 	bs := make([]int64, 0, n)
-	for i := 0; i < n; i++ {
+	for range n {
 		bs = append(bs, node.Next().Int64())
 	}
 	if !slices.IsSorted(bs) {
@@ -51,7 +51,7 @@ func Test_Order_Base36(t *testing.T) {
 	node, _ := New(WithEntropy(rand.IntN))
 	n := 100000
 	bs := make([]string, 0, n)
-	for i := 0; i < n; i++ {
+	for range n {
 		bs = append(bs, node.Next().Base36())
 	}
 	if !slices.IsSorted(bs) {
@@ -63,12 +63,12 @@ func Test_Order_Base36(t *testing.T) {
 func Test_Race(t *testing.T) {
 	node, _ := New(WithNode(1))
 	go func() {
-		for i := 0; i < 1000000000; i++ {
+		for range 1000000000 {
 			_, _ = New(WithNode(1))
 		}
 	}()
 
-	for i := 0; i < 4000; i++ {
+	for range 4000 {
 		node.Next()
 	}
 }

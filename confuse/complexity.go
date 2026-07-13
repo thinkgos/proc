@@ -166,7 +166,7 @@ func (sf *Complexity) Generate(n int) string {
 	buffer := make([]byte, n)
 	max := big.NewInt(int64(len(sf.chars)))
 	for {
-		for j := 0; j < n; j++ {
+		for j := range n {
 			rnd, err := cryptorand.Int(cryptorand.Reader, max)
 			if err != nil {
 				idx = rand.IntN(len(sf.chars))

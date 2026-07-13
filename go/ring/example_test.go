@@ -28,13 +28,13 @@ func ExampleRing_Next() {
 	n := r.Len()
 
 	// Initialize the ring with some integer values
-	for i := 0; i < n; i++ {
+	for i := range n {
 		r.Value = i
 		r = r.Next()
 	}
 
 	// Iterate through the ring and print its contents
-	for j := 0; j < n; j++ {
+	for range n {
 		fmt.Println(r.Value)
 		r = r.Next()
 	}
@@ -55,13 +55,13 @@ func ExampleRing_Prev() {
 	n := r.Len()
 
 	// Initialize the ring with some integer values
-	for i := 0; i < n; i++ {
+	for i := range n {
 		r.Value = i
 		r = r.Next()
 	}
 
 	// Iterate through the ring backwards and print its contents
-	for j := 0; j < n; j++ {
+	for range n {
 		r = r.Prev()
 		fmt.Println(r.Value)
 	}
@@ -82,7 +82,7 @@ func ExampleRing_Do() {
 	n := r.Len()
 
 	// Initialize the ring with some integer values
-	for i := 0; i < n; i++ {
+	for i := range n {
 		r.Value = i
 		r = r.Next()
 	}
@@ -108,7 +108,7 @@ func ExampleRing_Move() {
 	n := r.Len()
 
 	// Initialize the ring with some integer values
-	for i := 0; i < n; i++ {
+	for i := range n {
 		r.Value = i
 		r = r.Next()
 	}
@@ -139,13 +139,13 @@ func ExampleRing_Link() {
 	ls := s.Len()
 
 	// Initialize r with 0s
-	for i := 0; i < lr; i++ {
+	for range lr {
 		r.Value = 0
 		r = r.Next()
 	}
 
 	// Initialize s with 1s
-	for j := 0; j < ls; j++ {
+	for range ls {
 		s.Value = 1
 		s = s.Next()
 	}
@@ -173,7 +173,7 @@ func ExampleRing_Unlink() {
 	n := r.Len()
 
 	// Initialize the ring with some integer values
-	for i := 0; i < n; i++ {
+	for i := range n {
 		r.Value = i
 		r = r.Next()
 	}

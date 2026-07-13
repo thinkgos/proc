@@ -34,17 +34,17 @@ func (j JSONSyntaxError) Error() string {
 
 // Create maps for decoding Base58/Base32. this speeds up the process tremendously.
 func init() {
-	for i := 0; i < len(base58DecodeMap); i++ {
+	for i := range len(base58DecodeMap) {
 		base58DecodeMap[i] = 0xFF
 	}
-	for i := 0; i < len(base58EncodeCharset); i++ {
+	for i := range len(base58EncodeCharset) {
 		base58DecodeMap[base58EncodeCharset[i]] = byte(i)
 	}
 
-	for i := 0; i < len(base32DecodeMap); i++ {
+	for i := range len(base32DecodeMap) {
 		base32DecodeMap[i] = 0xFF
 	}
-	for i := 0; i < len(base32EncodeCharset); i++ {
+	for i := range len(base32EncodeCharset) {
 		base32DecodeMap[base32EncodeCharset[i]] = byte(i)
 	}
 }

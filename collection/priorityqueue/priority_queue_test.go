@@ -71,12 +71,12 @@ func Test_PriorityQueue_MaxHeap(t *testing.T) {
 }
 
 func pq_Test_PriorityQueue_SortImpl[T comparable](t *testing.T, q *PriorityQueue[T], input, expected []T) {
-	for i := 0; i < len(input); i++ {
+	for i := range input {
 		q.Push(input[i])
 	}
 
 	require.Equal(t, len(input), q.Len())
-	for i := 0; i < len(expected); i++ {
+	for i := range expected {
 		val, ok := q.Pop()
 		assert.True(t, ok)
 		assert.Equal(t, expected[i], val)
@@ -100,11 +100,11 @@ func Test_PriorityQueue_DeleteMaxHeap(t *testing.T) {
 }
 
 func pq_Test_PriorityQueue_DeleteImpl[T comparable](t *testing.T, q *PriorityQueue[T], input, expected []T) {
-	for i := 0; i < len(input); i++ {
+	for i := range input {
 		q.Push(input[i])
 	}
 
-	for i := 0; i < len(expected); i++ {
+	for i := range expected {
 		val, ok := q.Pop()
 		assert.True(t, ok)
 		assert.Equal(t, expected[i], val)

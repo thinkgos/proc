@@ -38,7 +38,7 @@ func Test_Base32(t *testing.T) {
 		t.Fatalf("error creating NewNode, %s", err)
 	}
 
-	for i := 0; i < 100; i++ {
+	for range 100 {
 		sf := node.Next()
 		b32i := sf.Base32()
 		psf, err := ParseBase32([]byte(b32i))
@@ -87,7 +87,7 @@ func Test_Base58(t *testing.T) {
 		t.Fatalf("error creating NewNode, %s", err)
 	}
 
-	for i := 0; i < 10; i++ {
+	for range 10 {
 		sf := node.Next()
 		b58 := sf.Base58()
 		psf, err := ParseBase58([]byte(b58))

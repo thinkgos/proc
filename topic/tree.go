@@ -2,6 +2,7 @@ package topic
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 	"sync"
 )
@@ -90,15 +91,12 @@ func (t *Tree) add(value any, topic string, node *node) {
 	// add value to leaf
 	if topic == topicEnd {
 		// check if duplicate
-		for _, v := range node.values {
-			if v == value {
-				return
-			}
+		if slices.Contains(node.values, value) {
+			return
 		}
 
 		// add value
 		node.values = append(node.values, value)
-
 		return
 	}
 
@@ -468,13 +466,7 @@ func (t *Tree) String() string {
 }
 
 func contains(list []any, value any) bool {
-	for _, v := range list {
-		if v == value {
-			return true
-		}
-	}
-
-	return false
+	return slices.Contains(list, value)
 }
 
 func topicShorten(topic, separator string) string {
@@ -487,9 +479,9 @@ func topicShorten(topic, separator string) string {
 }
 
 func topicSegment(topic, separator string) string {
-	i := strings.Index(topic, separator)
-	if i >= 0 {
-		return topic[:i]
+	before, _, ok := strings.Cut(topic, separator)
+	if ok {
+		return before
 	}
 
 	return topic
