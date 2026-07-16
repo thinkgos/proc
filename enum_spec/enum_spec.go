@@ -31,7 +31,7 @@ type Info struct {
 
 type Contact struct {
 	Name  string `json:"name,omitempty" yaml:"name,omitempty"`
-	URL   string `json:"url,omitempty" yaml:"url,omitempty"`
+	Url   string `json:"url,omitempty" yaml:"url,omitempty"`
 	Email string `json:"email,omitempty" yaml:"email,omitempty"`
 }
 
@@ -126,11 +126,11 @@ type Enumerate struct {
 }
 
 type EnumerateValue struct {
-	GoTypeName string `json:"goTypeName"` // 枚举项定义名称
-	Name       string `json:"name"`       // 枚举项名称, 已去掉枚举项定义名称的前缀
-	Const      string `json:"const"`      // 枚举项值, string: unquote string.
-	Label      string `json:"label"`      // 枚举项的标签
-	RawValue   string `json:"value"`      // 枚举项的原始值, string: quote string.
+	GoName   string `json:"goName"` // 枚举项定义名称
+	Name     string `json:"name"`   // 枚举项名称, 已去掉枚举项定义名称的前缀
+	Const    string `json:"const"`  // 枚举项值, string: unquote string.
+	Label    string `json:"label"`  // 枚举项的标签
+	RawValue string `json:"value"`  // 枚举项的原始值, string: quote string.
 }
 
 type EnumerateValueSlices []*EnumerateValue
