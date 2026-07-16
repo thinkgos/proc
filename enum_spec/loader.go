@@ -2,6 +2,7 @@ package enum_spec
 
 import (
 	"cmp"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -55,7 +56,7 @@ func (l *Loader) LoadFromURL(url string) (*T, error) {
 }
 
 func ReadFromHTTP(cl *http.Client, url string) ([]byte, error) {
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequestWithContext(context.Background(), "GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
