@@ -63,6 +63,13 @@ func Test_Cache(t *testing.T) {
 	} else if c2 := x.(float64); c2+1.2 != 4.7 {
 		t.Error("c2 (which should be 3.5) plus 1.2 does not equal 4.7; value:", c2)
 	}
+
+	x = tc.GetOrNew("d", func() any { return "4" }, DefaultExpiration)
+	if x == nil {
+		t.Error("x for c is nil")
+	} else if d := x.(string); d != "4" {
+		t.Error("d (which should be '4') does not equal '4'; value:", d)
+	}
 }
 
 func Test_CacheTimes(t *testing.T) {

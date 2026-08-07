@@ -143,6 +143,30 @@ func (c *cache) Get(k string) (any, bool) {
 	return val, found
 }
 
+type InsertCb func() any
+
+func (c *cache) GetOrNew(k string, cb InsertCb, d time.Duration) any {
+	c.mu.RLock()
+	val, found := c.getValue(k)
+	c.mu.RUnlock()
+	if found {
+		return val
+	}
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	// double check
+	val, found = c.getValue(k)
+	if found {
+		return val
+	}
+	val = cb()
+	c.items[k] = Item{
+		Value:      val,
+		Expiration: c.calcExpiration(d),
+	}
+	return val
+}
+
 // GetEx get an item from the cache. Returns the item or nil, and a bool indicating
 // whether the key was found. if key found, update with new expires.
 func (c *cache) GetEx(k string, d time.Duration) (any, bool) {
