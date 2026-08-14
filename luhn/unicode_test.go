@@ -325,3 +325,162 @@ func Test_UnicodeModN_Validate(t *testing.T) {
 		}
 	})
 }
+
+func Test_Unicode_Encode(t *testing.T) {
+	testCases := []struct {
+		name    string
+		chars   string
+		input   string
+		wantErr bool
+	}{
+		{
+			name:  "CJK",
+			chars: "零一二三四五六七八九",
+			input: "七九九二七三九八七一",
+		},
+		{
+			name:  "Emoji",
+			chars: "😀😁😂🤣😃😄",
+			input: "😀😂😃🤣😁",
+		},
+		{
+			name:  "Katakana",
+			chars: "アイウエオカキクケコ",
+			input: "カキクケ",
+		},
+		{
+			name:  "Mixed width",
+			chars: "AB一二三АБВ",
+			input: "А一B二",
+		},
+		{
+			name:    "Empty input",
+			chars:   "零一二三四五六七八九",
+			input:   "",
+			wantErr: true,
+		},
+		{
+			name:    "Invalid rune in input",
+			chars:   "😀😁😂🤣😃😄",
+			input:   "😀😁X",
+			wantErr: true,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			l, err := luhn.NewUnicode(tc.chars)
+			if err != nil {
+				t.Fatalf("NewUnicode(%q) unexpected error: %v", tc.chars, err)
+			}
+			encoded, err := l.Encode(tc.input)
+			if tc.wantErr {
+				if err == nil {
+					t.Fatal("expected error")
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("Encode(%q) unexpected error: %v", tc.input, err)
+			}
+			// encoded should be input + one check rune
+			runes := []rune(encoded)
+			inputRunes := []rune(tc.input)
+			if len(runes) != len(inputRunes)+1 {
+				t.Errorf("Encode(%q) length = %d, want %d", tc.input, len(runes), len(inputRunes)+1)
+			}
+		})
+	}
+}
+
+func Test_Unicode_Decode(t *testing.T) {
+	t.Run("CJK valid", func(t *testing.T) {
+		l, _ := luhn.NewUnicode("零一二三四五六七八九")
+		payload := "七九九二七三九八七一"
+		encoded, err := l.Encode(payload)
+		if err != nil {
+			t.Fatalf("Encode(%q) unexpected error: %v", payload, err)
+		}
+		decoded, err := l.Decode(encoded)
+		if err != nil {
+			t.Fatalf("Decode(%q) unexpected error: %v", encoded, err)
+		}
+		if decoded != payload {
+			t.Errorf("Decode(%q) = %q, want %q", encoded, decoded, payload)
+		}
+	})
+
+	t.Run("Emoji valid", func(t *testing.T) {
+		l, _ := luhn.NewUnicode("😀😁😂🤣😃😄")
+		payload := "😀😂😃🤣😁"
+		encoded, err := l.Encode(payload)
+		if err != nil {
+			t.Fatalf("Encode(%q) unexpected error: %v", payload, err)
+		}
+		decoded, err := l.Decode(encoded)
+		if err != nil {
+			t.Fatalf("Decode(%q) unexpected error: %v", encoded, err)
+		}
+		if decoded != payload {
+			t.Errorf("Decode(%q) = %q, want %q", encoded, decoded, payload)
+		}
+	})
+
+	t.Run("Empty input", func(t *testing.T) {
+		l, _ := luhn.NewUnicode("零一二三四五六七八九")
+		_, err := l.Decode("")
+		if err == nil {
+			t.Fatal("expected error for empty input")
+		}
+	})
+
+	t.Run("Wrong check digit", func(t *testing.T) {
+		l, _ := luhn.NewUnicode("零一二三四五六七八九")
+		// "零" is index 0, guaranteed to differ from any valid check digit for this payload
+		if l.Validate("七九九二七三九八七一零") {
+			t.Error("expected wrong check digit to fail")
+		}
+	})
+
+	t.Run("Invalid rune in input", func(t *testing.T) {
+		l, _ := luhn.NewUnicode("😀😁😂🤣😃😄")
+		_, err := l.Decode("😀😁X")
+		if err == nil {
+			t.Fatal("expected error for rune not in alphabet")
+		}
+	})
+}
+
+func Test_Unicode_EncodeDecode_Roundtrip(t *testing.T) {
+	alphabets := []struct {
+		name  string
+		chars string
+		input string
+	}{
+		{"CJK", "零一二三四五六七八九", "七九九二七三九八七一"},
+		{"Emoji", "😀😁😂🤣😃😄", "😀😂😃🤣😁"},
+		{"Katakana", "アイウエオカキクケコ", "カキクケ"},
+		{"Cyrillic", "АБВГДЕЖЗИК", "АБВГД"},
+		{"Greek", "ΑΒΓΔΕΖΗΘΙΚ", "ΑΒΓΔ"},
+		{"Mixed width", "AB一二三АБВ", "А一B二"},
+		{"Single rune", "零一二三四五六七八九", "零"},
+	}
+	for _, tc := range alphabets {
+		t.Run(tc.name, func(t *testing.T) {
+			l, err := luhn.NewUnicode(tc.chars)
+			if err != nil {
+				t.Fatalf("NewUnicode(%q) unexpected error: %v", tc.chars, err)
+			}
+			encoded, err := l.Encode(tc.input)
+			if err != nil {
+				t.Fatalf("Encode(%q) unexpected error: %v", tc.input, err)
+			}
+			decoded, err := l.Decode(encoded)
+			if err != nil {
+				t.Fatalf("Decode(%q) unexpected error: %v", encoded, err)
+			}
+			if decoded != tc.input {
+				t.Errorf("roundtrip: Encode(%q)=%q, Decode(%q)=%q, want %q", tc.input, encoded, encoded, decoded, tc.input)
+			}
+		})
+	}
+}
