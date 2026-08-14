@@ -37,7 +37,7 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	StdMod32, err = New("ABCDEFGHIJKLMNOPQRSTUVWXYZ234567")
+	StdMod32, err = New("234567ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 	if err != nil {
 		panic(err)
 	}
