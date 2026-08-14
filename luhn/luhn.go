@@ -27,6 +27,9 @@ var StdMod36 LuhnModN
 // Use "123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ"
 var StdMod58 LuhnModN
 
+// Use "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+var StdMod62 LuhnModN
+
 func init() {
 	var err error
 
@@ -47,6 +50,10 @@ func init() {
 		panic(err)
 	}
 	StdMod58, err = New("123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ")
+	if err != nil {
+		panic(err)
+	}
+	StdMod62, err = New("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 	if err != nil {
 		panic(err)
 	}
