@@ -74,6 +74,15 @@ func (l *Lookup) ExtractValueOr(r *http.Request, dflt string) string {
 	return value
 }
 
+// ExtractValueOrFunc extract value from http request, if miss value or error, return default function value.
+func (l *Lookup) ExtractValueOrFunc(r *http.Request, dflt func() string) string {
+	value, err := l.extractors.ExtractValue(r)
+	if err != nil || value == "" {
+		return dflt()
+	}
+	return value
+}
+
 // FromHeader get value from header
 // key is a header key, like "Authorization"
 // prefix is a string in the header, like "Bearer", if it is empty, only will return value.
