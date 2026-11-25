@@ -1,0 +1,167 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "枚举注册表 (Enum Registry)",
+  "description": "枚举注册表文档的 JSON Schema (Draft 2020-12)。枚举定义参考 OpenAPI 3.1 Schema Object 形态 (oneOf + const); 成员语义字段 name = 成员名, label = 中文标签 (UI 文案), description = 描述。不含 x- 扩展, 映射到 components.schemas 时按 enum-spec.md §8 做字段投影。命名与取值格式不设额外约束, 与 OpenAPI v3 一致。字段规范与语义规则见同目录 enum-spec.md。",
+  "type": "object",
+  "required": ["version", "enums"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "指向本 schema 的引用, 便于编辑器补全与校验, 如 \"./enums.schema.json\""
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "注册表文档版本 (semver), 内容变更时递增"
+    },
+    "enums": {
+      "type": "object",
+      "minProperties": 1,
+      "description": "枚举定义表: 键为枚举名 (将作为 OpenAPI components.schemas 的 key), 值为 OpenAPI 3.1 Schema Object 形态的枚举定义",
+      "propertyNames": { "$ref": "#/$defs/enumName" },
+      "additionalProperties": { "$ref": "#/$defs/enum" }
+    }
+  },
+  "$defs": {
+    "enumName": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9\\.\\-_]+$",
+      "description": "枚举名: 作为 OpenAPI components.schemas 的 key, 字符集遵循 OpenAPI 3.x Components Object 对 key 的要求 (^[a-zA-Z0-9\\.\\-_]+$), 如 Gender / Core_Gender / core.gender"
+    },
+    "stringValue": {
+      "type": "string",
+      "description": "string 类型取值: 任意字符串"
+    },
+    "intValue": {
+      "type": "integer",
+      "description": "integer 类型取值: 任意整数"
+    },
+    "constValue": {
+      "description": "成员取值, 具体类型由所属枚举的 type 决定 (见枚举级 if/then 约束)",
+      "oneOf": [
+        { "$ref": "#/$defs/stringValue" },
+        { "$ref": "#/$defs/intValue" }
+      ]
+    },
+    "enum": {
+      "type": "object",
+      "required": ["type", "title", "oneOf"],
+      "additionalProperties": false,
+      "description": "枚举定义 (OpenAPI 3.1 Schema Object 受限子集, 仅收本规范关键字; 拼错/多写的字段会被拒绝)",
+      "properties": {
+        "type": {
+          "enum": ["string", "integer"],
+          "description": "取值类型: string 或 integer"
+        },
+        "format": {
+          "type": "string",
+          "enum": ["int8", "int16", "int32", "int64", "uint8", "uint16", "uint32", "uint64"],
+          "description": "取值宽度 (仅 integer 枚举, 可选): int8/int16/int32/int64/uint8/uint16/uint32/uint64, 覆盖所有整型宽度; 不填 = 对应语言默认整数类型 (如 Go int); string 枚举不写 format"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "description": "枚举中文名称 (UI/文档标题), 如 \"性别\""
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "枚举用途/适用范围补充说明 (可选)"
+        },
+        "default": {
+          "description": "默认值 (可选), 必须等于某个非废弃成员的 const",
+          "oneOf": [
+            { "$ref": "#/$defs/stringValue" },
+            { "$ref": "#/$defs/intValue" }
+          ]
+        },
+        "deprecated": {
+          "type": "boolean",
+          "description": "整个枚举已废弃 (可选), 废弃时须在 description 注明替代方案"
+        },
+        "oneOf": {
+          "type": "array",
+          "minItems": 1,
+          "description": "成员列表 (OpenAPI 3.1 语义: 每个成员是含 const 的子 Schema), 顺序 = 展示/生成顺序",
+          "items": { "$ref": "#/$defs/member" }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["type"],
+            "properties": { "type": { "const": "integer" } }
+          },
+          "then": {
+            "properties": {
+              "format": { "enum": ["int8", "int16", "int32", "int64", "uint8", "uint16", "uint32", "uint64"] },
+              "default": { "$ref": "#/$defs/intValue" },
+              "oneOf": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "const": { "$ref": "#/$defs/intValue" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["type"],
+            "properties": { "type": { "const": "string" } }
+          },
+          "then": {
+            "properties": {
+              "format": false,
+              "default": { "$ref": "#/$defs/stringValue" },
+              "oneOf": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "const": { "$ref": "#/$defs/stringValue" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "member": {
+      "type": "object",
+      "required": ["name", "const", "label"],
+      "additionalProperties": false,
+      "description": "枚举成员 (oneOf 成员, 含 const 取值)",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "成员名, 如 Male; 同枚举内唯一, 无书写格式约束"
+        },
+        "const": {
+          "$ref": "#/$defs/constValue",
+          "description": "线上取值 (wire value), 类型与所属枚举 type 一致; 发布后不可修改、不可复用"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "description": "中文标签 (UI 显示文案), 如 \"男\"; 同枚举内互不相同"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "描述/补充说明 (可选), 如 \"旧场景, 由 ResetLoginPasswd 取代\""
+        },
+        "deprecated": {
+          "type": "boolean",
+          "description": "成员已废弃 (可选); 取值保留不回收, 须在 description 注明去向"
+        }
+      }
+    }
+  }
+}

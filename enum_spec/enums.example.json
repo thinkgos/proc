@@ -1,0 +1,98 @@
+{
+  "$schema": "./enums.schema.json",
+  "version": "1.0.0",
+  "enums": {
+    "core.gender": {
+      "type": "integer",
+      "format": "uint32",
+      "title": "性别",
+      "description": "用户性别, 用于用户资料与实名信息",
+      "oneOf": [
+        {
+          "name": "male",
+          "const": 1,
+          "label": "男"
+        },
+        {
+          "name": "female",
+          "const": 2,
+          "label": "女"
+        },
+        {
+          "name": "unknown",
+          "const": 3,
+          "label": "未知",
+          "description": "未指定或不愿透露"
+        }
+      ]
+    },
+    "core.client_platform": {
+      "type": "string",
+      "title": "客户端平台",
+      "description": "终端接入平台",
+      "oneOf": [
+        {
+          "name": "Web",
+          "const": "web",
+          "label": "Web"
+        },
+        {
+          "name": "IOS",
+          "const": "ios",
+          "label": "IOS"
+        },
+        {
+          "name": "Android",
+          "const": "android",
+          "label": "Android"
+        },
+        {
+          "name": "Applet",
+          "const": "applet",
+          "label": "小程序"
+        }
+      ]
+    },
+    "sys.temp_grant_scene": {
+      "type": "string",
+      "title": "临时授权场景",
+      "description": "需要二次确认的临时授权使用场景",
+      "oneOf": [
+        {
+          "name": "ResetUserPasswd",
+          "const": "reset-user-passwd",
+          "label": "重置用户密码"
+        },
+        {
+          "name": "ResetLoginPasswd",
+          "const": "reset-login-passwd",
+          "label": "重置登录密码"
+        },
+        {
+          "name": "ResetPasswd",
+          "const": "reset-passwd",
+          "label": "重置密码",
+          "description": "旧场景, 由 ResetLoginPasswd 取代",
+          "deprecated": true
+        }
+      ]
+    },
+    "sys.sse_channel": {
+      "type": "string",
+      "title": "SSE通道",
+      "description": "服务端推送通道, 值采用 命名空间:名称 形式",
+      "oneOf": [
+        {
+          "name": "MonitorService",
+          "const": "monitor:service",
+          "label": "监控服务"
+        },
+        {
+          "name": "MonitorLiveLog",
+          "const": "monitor:live_log",
+          "label": "监控实时日志"
+        }
+      ]
+    }
+  }
+}
